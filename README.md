@@ -9,12 +9,17 @@
 La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras muertas, botones toscos y cero información sobre qué cojones acabas de pulsar si le das rápido en una partida de cartas o juego de mesa.
 
 **ContraCounter** reconstruye la experiencia desde los cimientos en **Jetpack Compose + Material 3**:
-- 🎨 **Material You Nativo:** Soporte dinámico de colores del sistema (`DynamicColor`) que sincroniza toda la interfaz con la paleta de tu fondo de pantalla (Monet) en Android 12+ (brutal en el Pixel 10a).
-- 🌓 **Temas Claro, Oscuro y Sistema:** Selector rápido de temas accesible directamente desde la barra superior.
+- 🎨 **Estilo Nativo de Google:** Barra superior limpia con el título *ContraCounter* alineado a la izquierda y sin icono molesto, siguiendo al dedillo el diseño de las apps oficiales de Google Pixel.
+- 🌓 **Adaptación Automática al Sistema:** Olvídate de conmutadores manuales cutres; si tu Android está en modo oscuro se pone oscuro, y si está en claro, en claro.
+- 🎭 **Selector de Temas Internos (Modal M3):** Pulsando el icono de la paleta en la barra superior se despliega un selector de paletas visuales:
+  - **Material 3 (Pixel):** Dynamic Colors de Monet según tu fondo de pantalla.
+  - **Modo Poke 💕:** Fancy chic, tonos rosita pastel, blush, rose gold y glamour en honor a Laura Poke.
+  - **Cyberpunk ⚡:** Vibras Night City con neón cian y acentos amarillo eléctrico.
+  - **Matcha Esmeralda 🌿:** Tonos verdes botánicos y salvia ultra relajantes.
 - 👻 **Shadow Delta Tracker (5s / 3s):** Si pulsas repetidamente sobre `+` o `-`, un distintivo flotante con brillo y sombra suave acumula el total sumado o restado en los últimos 5 segundos y permanece visible durante 3 segundos tras la última pulsación para que jamás dudes de cuánto has variado el contador.
 - 🎯 **Ajuste Directo por Pulsación Larga:** Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra o usar los chips rápidos (`+10`, `+5`, `-5`, `-10`, restaurar al inicial).
 - 🛡️ **Reset y Borrado Protegidos con Confirmación:** Diálogos Material 3 con elevación tonal para evitar pulsaciones accidentales en mitad de una partida crucial.
-- ➕ **Nuevo Contador con Cantidad Inicial y Paso:** Diálogo de creación con selector de cantidad inicial, tamaño de paso (`step`), paletas de acento visual (Esmeralda, Rubí, Zafiro, Ámbar, Amatista) y plantillas predefinidas (Vida MTG 20/40, Rondas, etc.).
+- ➕ **Nuevo Contador con Cantidad Inicial y Paso:** Diálogo de creación con selector de cantidad inicial, tamaño de paso (`step`), paletas de acento visual (Esmeralda, Rubí, Zafiro, Ámbar, Amatista, Poke Pink) y plantillas predefinidas (Vida MTG 20/40, Rondas, etc.).
 - 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
 - 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
 
