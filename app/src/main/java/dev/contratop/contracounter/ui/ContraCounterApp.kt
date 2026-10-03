@@ -52,6 +52,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -318,6 +319,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
             AlertDialog(
                 onDismissRequest = { showResetAllConfirm = false },
                 shape = RoundedCornerShape(28.dp),
+                containerColor = if (isDarkActive) Color(0xFF26242A) else Color(0xFFF5EEF8),
                 icon = {
                     Icon(
                         Icons.Rounded.RestartAlt,

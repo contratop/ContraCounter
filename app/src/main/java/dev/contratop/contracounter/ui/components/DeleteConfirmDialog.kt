@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.contratop.contracounter.data.Counter
 
@@ -23,6 +24,7 @@ fun DeleteConfirmDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(28.dp),
+        containerColor = if (androidx.compose.foundation.isSystemInDarkTheme()) Color(0xFF26242A) else Color(0xFFF5EEF8),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.DeleteOutline,
