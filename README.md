@@ -25,6 +25,14 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
 
 ---
 
+## 📸 Capturas de Pantalla
+
+| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Selector de Temas Material 3 |
+| :---: | :---: | :---: |
+| <img src="screenshots/contracounter_01_main_poke.png" width="260" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="260" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="260" alt="Selector de Temas M3" /> |
+
+---
+
 ## 🛠️ Tecnologías y Arquitectura
 
 - **Lenguaje:** Kotlin 1.9+
