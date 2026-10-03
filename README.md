@@ -6,35 +6,35 @@
 
 ## 🚀 ¿Por qué ContraCounter?
 
-La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras muertas, botones toscos y cero información sobre qué cojones acabas de pulsar si le das rápido en una partida de cartas o juego de mesa.
+La mayoría de aplicaciones de contadores presentan interfaces anticuadas y carecen de retroalimentación inmediata, haciendo difícil verificar con certeza cuánto se ha sumado o restado durante partidas rápidas de cartas, juegos de mesa o actividades deportivas.
 
-**ContraCounter** reconstruye la experiencia desde los cimientos en **Jetpack Compose + Material 3**:
-- 🎨 **Estilo Nativo de Google:** Barra superior limpia con el título *ContraCounter* alineado a la izquierda y sin icono molesto, siguiendo al dedillo el diseño de las apps oficiales de Google Pixel.
-- 🌓 **Adaptación Automática al Sistema:** Olvídate de conmutadores manuales cutres; si tu Android está en modo oscuro se pone oscuro, y si está en claro, en claro.
+**ContraCounter** reinventa la experiencia desde los cimientos en **Jetpack Compose + Material Design 3**:
+- 🎨 **Estilo Nativo de Google:** Barra superior minimalista con el título *ContraCounter* alineado a la izquierda sin elementos superfluos, siguiendo la línea de diseño de las aplicaciones de Google Pixel.
+- 🌓 **Adaptación Automática al Sistema:** Integración completa con el tema claro u oscuro del dispositivo sin necesidad de configuraciones manuales.
 - 🎭 **Selector de Temas Internos (Modal M3):** Pulsando el icono de la paleta en la barra superior se despliega un selector de paletas visuales:
-  - **Material 3 (Pixel):** Dynamic Colors de Monet según tu fondo de pantalla.
-  - **Modo Poke 💕:** Fancy chic, tonos rosita pastel, blush, rose gold y glamour en honor a Laura Poke.
-  - **Cyberpunk ⚡:** Vibras Night City con neón cian y acentos amarillo eléctrico.
-  - **Matcha Esmeralda 🌿:** Tonos verdes botánicos y salvia ultra relajantes.
-- 👻 **Shadow Delta Tracker (5s / 3s):** Si pulsas repetidamente sobre `+` o `-`, un distintivo flotante con brillo y sombra suave acumula el total sumado o restado en los últimos 5 segundos y permanece visible durante 3 segundos tras la última pulsación para que jamás dudes de cuánto has variado el contador.
-- 🎯 **Ajuste Directo por Pulsación Larga:** Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra o usar los chips rápidos (`+10`, `+5`, `-5`, `-10`, restaurar al inicial).
-- 🛡️ **Reset y Borrado Protegidos con Confirmación:** Diálogos Material 3 con elevación tonal para evitar pulsaciones accidentales en mitad de una partida crucial.
-- ➕ **Nuevo Contador con Opción de Paso 1 en 1:** Switch integrado para fijar el paso siempre de 1 en 1 (activado por defecto) o definir un paso personalizado, cantidad inicial, plantillas rápidas (Vida MTG 20/40, Rondas, etc.) y selector de paletas de acento visual.
-- 🚀 **Mini Modal de Ajuste Rápido (+/- 1, 2, 5, 10 y Custom):** Mantén pulsado el botón verde (`+1`) o el botón rojo (`-1`) de cualquier contador para abrir el panel de control rápido:
-  - **Columna izquierda:** Botones instantáneos para sumar `+1`, `+2`, `+5`, `+10` y `+ Custom`.
-  - **Columna central:** Contador gigante con animación vertical de odómetro hacia arriba con física elástica, shadow delta acumulado en tiempo real y botón de confirmación.
-  - **Columna derecha:** Botones instantáneos para restar `-1`, `-2`, `-5`, `-10` y `- Custom`.
-  - **Diálogo Custom:** Permite introducir cualquier valor a medida o usar chips rápidos (+5, +15, +20, +25, +50, +100).
+  - **Material 3 (Pixel):** Dynamic Colors de Monet adaptados al fondo de pantalla de tu dispositivo.
+  - **Modo Poke 💕:** Estilo *fancy chic* con tonos rosita pastel, blush y rose gold.
+  - **Cyberpunk ⚡:** Inspirado en Night City con acentos neón cian y amarillo eléctrico.
+  - **Matcha Esmeralda 🌿:** Tonos verdes botánicos y salvia relajantes.
+- 👻 **Shadow Delta Tracker (5s / 3s):** Al interactuar de forma rápida y repetida sobre `+` o `-`, un distintivo flotante con brillo sutil acumula el balance neto modificado en los últimos 5 segundos, permaneciendo visible durante 3 segundos tras la última pulsación para ofrecer una confirmación visual clara.
+- 🎯 **Ajuste Directo por Pulsación Prolongada:** Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra deseada o utilizar los chips rápidos (`+10`, `+5`, `-5`, `-10`, restaurar al valor inicial).
+- 🛡️ **Reset y Borrado Protegidos con Confirmación:** Diálogos Material 3 para evitar reinicios o eliminaciones accidentales.
+- ➕ **Nuevo Contador con Opción de Paso 1 en 1:** Selector para fijar el paso siempre de 1 en 1 (activado por defecto) o definir un paso personalizado, cantidad inicial, plantillas predefinidas (Vida MTG 20/40, Rondas, etc.) y selector de paletas de color.
+- 🚀 **Mini Modal de Ajuste Rápido (+/- 1, 2, 5, 10 y Custom):** Mantén pulsado el botón de sumar (`+`) o restar (`-`) de cualquier contador para abrir el panel de control rápido:
+  - **Columna izquierda:** Botones de acceso rápido para sumar `+1`, `+2`, `+5`, `+10` y `+ Custom`.
+  - **Columna central:** Contador ampliado con odómetro animado elástico, shadow delta acumulado en tiempo real y botón de confirmación.
+  - **Columna derecha:** Botones de acceso rápido para restar `-1`, `-2`, `-5`, `-10` y `- Custom`.
+  - **Diálogo Personalizado:** Permite introducir cualquier valor a medida o elegir valores frecuentes (+5, +15, +20, +25, +50, +100).
 - 📺 **Modo Pantalla Completa Inmersivo:** Toca una vez sobre cualquier contador para abrir su pantalla completa dedicada:
-  - **Número Colosal:** Cifra en tamaño gigante (hasta 104sp) con animación vertical de odómetro con física elástica.
-  - **Botones Hero Gigantes (`+ 1` y `- 1`):** Ocupan toda la parte inferior (105dp de altura) para pulsar comodísimamente con los dos pulgares sin mirar.
-  - **Filas de Ajuste Rápido:** Acceso inmediato a `+2`, `+5`, `+10`, `+Custom` y `-2`, `-5`, `-10`, `-Custom`.
-  - **Mantener Pantalla Encendida (Keep Screen On):** Conmutador con icono de sol en la barra superior para que el móvil no entre en suspensión durante partidas de MTG, juegos de mesa o entrenamientos.
-  - **Acciones Directas:** Botones de edición directa de cifra, reseteo a valor inicial y navegación fluida con el botón atrás nativo de Android.
-  - ✨ **Transición Material 3 Motion (Container Transform):** Apertura y cierre de la pantalla completa con curvas de aceleración y deceleración M3 (*Emphasized Decelerate / Accelerate*), escala elástica (0.90x -> 1.0x), desplazamiento sutil y fundidos sincronizados idénticos a las apps nativas de Google Pixel.
-- 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
-- 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
-- 👾 **Easter Egg & Comprobador de Actualizaciones GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el modal exclusivo con el logo de **ContratopDev**, versión actual y comprobación en tiempo real contra los releases de GitHub para notificarte y redirigirte a descargar actualizaciones al instante.
+  - **Número Colosal:** Cifra en gran formato (hasta 104sp) con animación vertical fluida.
+  - **Botones Hero Gigantes (`+ 1` y `- 1`):** Diseñados ergonómicamente en la zona inferior (105dp de altura) para un accionamiento cómodo y sin distracciones.
+  - **Filas de Ajuste Rápido:** Acceso inmediato a incrementos y decrementos habituales (`+/- 2, 5, 10, Custom`).
+  - **Mantener Pantalla Encendida (Keep Screen On):** Conmutador en la barra superior para evitar que la pantalla entre en suspensión durante sesiones de juego o eventos.
+  - **Acciones Directas:** Edición directa de cifra, reseteo a valor inicial y navegación fluida con el botón atrás nativo de Android.
+  - ✨ **Transición Nativa del Sistema (Activity & Predictive Back):** Apertura y retorno gestionados directamente por el sistema operativo Android, garantizando máxima fluidez y compatibilidad total con los gestos predictivos de Android 14/15 en dispositivos Pixel.
+- 💾 **Persistencia Instantánea:** Todos los contadores, estados, pasos y temas se guardan localmente para continuar siempre donde se dejó.
+- 📳 **Haptic Feedback:** Respuesta háptica táctil en interacciones clave y pulsaciones prolongadas.
+- 👾 **Comprobador de Actualizaciones de GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el diálogo informativo con el logo oficial de **ContratopDev**, versión instalada y comprobación en tiempo real de nuevas releases publicadas en GitHub con enlace directo para su descarga.
 
 ---
 
@@ -120,9 +120,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ./gradlew assembleRelease
 ```
 El APK se genera en:
-`app/build/outputs/apk/release/app-release-unsigned.apk`
+`app/build/outputs/apk/release/app-release.apk`
 
 ---
 
 ## 👥 Desarrollado por
-Creado por **ContratopDev** & **Conexor**.
+Desarrollado por **ContratopDev**.

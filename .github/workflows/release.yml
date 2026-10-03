@@ -53,9 +53,9 @@ jobs:
 
       - name: Compilar Release APK
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD != '' && secrets.KEYSTORE_PASSWORD || 'contracounter' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS != '' && secrets.KEY_ALIAS || 'contracounter' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD != '' && secrets.KEY_PASSWORD || 'contracounter' }}
         run: ./gradlew assembleRelease
 
       - name: Extraer Versión del Proyecto
@@ -92,7 +92,7 @@ jobs:
             
             #### 🎭 Selector de Temas Visuales (Modal M3)
             - **Material 3 (Pixel):** Dynamic Colors de Monet vinculados al fondo de pantalla de tu dispositivo.
-            - **Modo Poke 💕:** Estilo *fancy chic*, rosita pastel, blush y glamour en honor a Laura Poke.
+            - **Modo Poke 💕:** Estilo *fancy chic* con tonos rosita pastel, blush y rose gold.
             - **Cyberpunk ⚡:** Night City vibes con tonos neón cian y acentos amarillo eléctrico.
             - **Matcha Esmeralda 🌿:** Tonos botánicos y salvia ultra relajantes.
             
@@ -104,7 +104,7 @@ jobs:
             - Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra deseada o usar los chips rápidos (`-10`, `-5`, `+5`, `+10`, inicial).
             
             #### 🛡️ Confirmaciones Protegidas para Reset y Borrado
-            - Se acabaron los reinicios por error: confirmación modal Material 3 antes de reiniciar o eliminar contadores.
+            - Confirmación modal Material 3 antes de reiniciar o eliminar contadores para evitar acciones involuntarias.
             
             #### 💾 Persistencia de Datos
             - Todos los contadores, cantidades, pasos y temas se guardan localmente para que continúes siempre donde lo dejaste.
@@ -119,7 +119,7 @@ jobs:
             
             ---
             
-            *Desarrollado con ❤️ y mala leche por **ContratopDev** & **Conexor***
+            *Desarrollado con ❤️ por **ContratopDev***
           files: ContraCounter-v${{ env.APP_VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
