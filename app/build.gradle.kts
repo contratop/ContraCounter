@@ -25,9 +25,9 @@ android {
             val keystoreFile = file("release.keystore")
             if (keystoreFile.exists()) {
                 storeFile = keystoreFile
-                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "contracounter"
-                keyAlias = System.getenv("KEY_ALIAS") ?: "contracounter"
-                keyPassword = System.getenv("KEY_PASSWORD") ?: "contracounter"
+                storePassword = System.getenv("KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() } ?: "contracounter"
+                keyAlias = System.getenv("KEY_ALIAS")?.takeIf { it.isNotBlank() } ?: "contracounter"
+                keyPassword = System.getenv("KEY_PASSWORD")?.takeIf { it.isNotBlank() } ?: "contracounter"
             }
         }
     }
