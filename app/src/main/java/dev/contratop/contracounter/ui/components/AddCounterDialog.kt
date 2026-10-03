@@ -31,6 +31,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -58,6 +60,7 @@ fun AddCounterDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var initialValueText by remember { mutableStateOf("0") }
+    var fixedStepToOne by remember { mutableStateOf(true) }
     var stepText by remember { mutableStateOf("1") }
     var selectedColorIndex by remember { mutableIntStateOf(0) }
     var titleError by remember { mutableStateOf(false) }
@@ -69,7 +72,7 @@ fun AddCounterDialog(
             return
         }
         val initial = initialValueText.toLongOrNull() ?: 0L
-        val step = stepText.toLongOrNull()?.coerceAtLeast(1L) ?: 1L
+        val step = if (fixedStepToOne) 1L else (stepText.toLongOrNull()?.coerceAtLeast(1L) ?: 1L)
         onConfirm(trimmed, initial, step, selectedColorIndex)
     }
 
@@ -165,28 +168,49 @@ fun AddCounterDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Cantidad Inicial y Paso (Step)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // Opción: Paso siempre de 1 en 1
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { fixedStepToOne = !fixedStepToOne }
                 ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Paso siempre de 1 en 1",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (fixedStepToOne) "Los botones sumarán y restarán de 1 en 1 (mantén pulsado para +2, +5, +10 o custom)"
+                                else "Define un paso personalizado diferente de 1",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Switch(
+                            checked = fixedStepToOne,
+                            onCheckedChange = { fixedStepToOne = it }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Cantidad Inicial (y Paso si no está fijado a 1)
+                if (fixedStepToOne) {
                     OutlinedTextField(
                         value = initialValueText,
                         onValueChange = { initialValueText = it },
-                        label = { Text("Cant. Inicial") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    OutlinedTextField(
-                        value = stepText,
-                        onValueChange = { stepText = it },
-                        label = { Text("Paso (+/-)") },
+                        label = { Text("Cantidad Inicial") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
@@ -194,8 +218,40 @@ fun AddCounterDialog(
                         ),
                         keyboardActions = KeyboardActions(onDone = { submit() }),
                         shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = initialValueText,
+                            onValueChange = { initialValueText = it },
+                            label = { Text("Cant. Inicial") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        OutlinedTextField(
+                            value = stepText,
+                            onValueChange = { stepText = it },
+                            label = { Text("Paso (+/-)") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(onDone = { submit() }),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -69,21 +69,25 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun increment(counterId: String) {
-        applyDelta(counterId, isIncrement = true)
+        val counter = _counters.value.firstOrNull { it.id == counterId } ?: return
+        applyDelta(counterId, counter.step)
     }
 
     fun decrement(counterId: String) {
-        applyDelta(counterId, isIncrement = false)
+        val counter = _counters.value.firstOrNull { it.id == counterId } ?: return
+        applyDelta(counterId, -counter.step)
     }
 
-    private fun applyDelta(counterId: String, isIncrement: Boolean) {
+    fun modifyValue(counterId: String, delta: Long) {
+        applyDelta(counterId, delta)
+    }
+
+    private fun applyDelta(counterId: String, delta: Long) {
         val currentList = _counters.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index == -1) return
 
         val counter = currentList[index]
-        val step = counter.step
-        val delta = if (isIncrement) step else -step
         val updated = counter.copy(currentValue = counter.currentValue + delta)
         currentList[index] = updated
         _counters.value = currentList

@@ -68,6 +68,7 @@ import dev.contratop.contracounter.ui.components.AboutDialog
 import dev.contratop.contracounter.ui.components.AddCounterDialog
 import dev.contratop.contracounter.ui.components.CounterCard
 import dev.contratop.contracounter.ui.components.DeleteConfirmDialog
+import dev.contratop.contracounter.ui.components.QuickAdjustModal
 import dev.contratop.contracounter.ui.components.ResetConfirmDialog
 import dev.contratop.contracounter.ui.components.SetDirectValueDialog
 import dev.contratop.contracounter.ui.components.ThemeSelectorDialog
@@ -93,6 +94,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         var counterToReset by remember { mutableStateOf<Counter?>(null) }
         var counterToDelete by remember { mutableStateOf<Counter?>(null) }
         var counterToEditDirectly by remember { mutableStateOf<Counter?>(null) }
+        var counterForQuickAdjust by remember { mutableStateOf<Counter?>(null) }
         var showResetAllConfirm by remember { mutableStateOf(false) }
 
         Scaffold(
@@ -218,6 +220,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                                 onResetRequest = { counterToReset = counter },
                                 onDeleteRequest = { counterToDelete = counter },
                                 onDirectValueRequest = { counterToEditDirectly = counter },
+                                onQuickAdjustRequest = { counterForQuickAdjust = counter },
                                 modifier = Modifier.animateItemPlacement()
                             )
                         }
@@ -290,6 +293,23 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                     counterToEditDirectly = null
                 },
                 onDismiss = { counterToEditDirectly = null }
+            )
+        }
+
+        // MINI MODAL: Ajuste Rápido (+/- 1, 2, 5, 10, Custom) con contador animado al centro
+        counterForQuickAdjust?.let { initialCounter ->
+            val liveCounter = counters.find { it.id == initialCounter.id } ?: initialCounter
+            val recentDelta = viewModel.recentDeltas[liveCounter.id] ?: 0L
+            val isVisible = viewModel.isDeltaVisible[liveCounter.id] ?: false
+
+            QuickAdjustModal(
+                counter = liveCounter,
+                recentDelta = recentDelta,
+                isDeltaVisible = isVisible,
+                onModify = { delta ->
+                    viewModel.modifyValue(liveCounter.id, delta)
+                },
+                onDismiss = { counterForQuickAdjust = null }
             )
         }
 

@@ -19,7 +19,12 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
 - 👻 **Shadow Delta Tracker (5s / 3s):** Si pulsas repetidamente sobre `+` o `-`, un distintivo flotante con brillo y sombra suave acumula el total sumado o restado en los últimos 5 segundos y permanece visible durante 3 segundos tras la última pulsación para que jamás dudes de cuánto has variado el contador.
 - 🎯 **Ajuste Directo por Pulsación Larga:** Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra o usar los chips rápidos (`+10`, `+5`, `-5`, `-10`, restaurar al inicial).
 - 🛡️ **Reset y Borrado Protegidos con Confirmación:** Diálogos Material 3 con elevación tonal para evitar pulsaciones accidentales en mitad de una partida crucial.
-- ➕ **Nuevo Contador con Cantidad Inicial y Paso:** Diálogo de creación con selector de cantidad inicial, tamaño de paso (`step`), paletas de acento visual (Esmeralda, Rubí, Zafiro, Ámbar, Amatista, Poke Pink) y plantillas predefinidas (Vida MTG 20/40, Rondas, etc.).
+- ➕ **Nuevo Contador con Opción de Paso 1 en 1:** Switch integrado para fijar el paso siempre de 1 en 1 (activado por defecto) o definir un paso personalizado, cantidad inicial, plantillas rápidas (Vida MTG 20/40, Rondas, etc.) y selector de paletas de acento visual.
+- 🚀 **Mini Modal de Ajuste Rápido (+/- 1, 2, 5, 10 y Custom):** Mantén pulsado el botón verde (`+1`) o el botón rojo (`-1`) de cualquier contador para abrir el panel de control rápido:
+  - **Columna izquierda:** Botones instantáneos para sumar `+1`, `+2`, `+5`, `+10` y `+ Custom`.
+  - **Columna central:** Contador gigante con animación vertical de odómetro hacia arriba con física elástica, shadow delta acumulado en tiempo real y botón de confirmación.
+  - **Columna derecha:** Botones instantáneos para restar `-1`, `-2`, `-5`, `-10` y `- Custom`.
+  - **Diálogo Custom:** Permite introducir cualquier valor a medida o usar chips rápidos (+5, +15, +20, +25, +50, +100).
 - 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
 - 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
 - 👾 **Easter Egg & Comprobador de Actualizaciones GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el modal exclusivo con el logo de **ContratopDev**, versión actual y comprobación en tiempo real contra los releases de GitHub para notificarte y redirigirte a descargar actualizaciones al instante.
@@ -28,9 +33,9 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
 
 ## 📸 Capturas de Pantalla
 
-| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Selector de Temas Material 3 | Programado por ContratopDev & Updates |
-| :---: | :---: | :---: | :---: |
-| <img src="screenshots/contracounter_01_main_poke.png" width="200" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="200" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="200" alt="Selector de Temas M3" /> | <img src="screenshots/contracounter_about_modal.png" width="200" alt="Programado por ContratopDev y Updates" /> |
+| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Ajuste Rápido (+/- 1,2,5,10,Cust) | Selector de Temas M3 | Programado por ContratopDev |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="screenshots/contracounter_01_main_poke.png" width="160" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="160" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_quick_adjust_modal.png" width="160" alt="Ajuste Rápido Modal" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="160" alt="Selector de Temas M3" /> | <img src="screenshots/contracounter_about_modal.png" width="160" alt="Programado por ContratopDev y Updates" /> |
 
 ---
 
@@ -72,7 +77,8 @@ ContraCounter/
 │   │   │           ├── ResetConfirmDialog.kt
 │   │   │           ├── DeleteConfirmDialog.kt
 │   │   │           ├── ThemeSelectorDialog.kt
-│   │   │           └── AboutDialog.kt
+│   │   │           ├── AboutDialog.kt
+│   │   │           └── QuickAdjustModal.kt
 │   │   └── res/
 │   │       ├── drawable/
 │   │       │   ├── app_icon.xml

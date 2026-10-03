@@ -59,6 +59,7 @@ fun CounterCard(
     onResetRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
     onDirectValueRequest: () -> Unit,
+    onQuickAdjustRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -94,7 +95,7 @@ fun CounterCard(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Botón SUMAR (+)
+                // Botón SUMAR (+) -> Click normal suma, pulsación prolongada abre mini modal de ajuste rápido
                 ActionButton(
                     text = "+ ${counter.step}",
                     icon = Icons.Rounded.Add,
@@ -103,10 +104,14 @@ fun CounterCard(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         onIncrement()
+                    },
+                    onLongClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onQuickAdjustRequest()
                     }
                 )
 
-                // Botón RESTAR (-)
+                // Botón RESTAR (-) -> Click normal resta, pulsación prolongada abre mini modal de ajuste rápido
                 ActionButton(
                     text = "- ${counter.step}",
                     icon = Icons.Rounded.Remove,
@@ -115,6 +120,10 @@ fun CounterCard(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         onDecrement()
+                    },
+                    onLongClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onQuickAdjustRequest()
                     }
                 )
             }
@@ -240,21 +249,27 @@ fun CounterCard(
 /**
  * Botón ergonómico de sumar o restar en estilo Material 3.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ActionButton(
     text: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     tint: Color,
     containerColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
 ) {
     Surface(
-        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         color = containerColor,
         modifier = Modifier
             .width(76.dp)
             .height(54.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp),
