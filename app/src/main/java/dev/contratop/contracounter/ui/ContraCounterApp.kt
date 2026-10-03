@@ -1,16 +1,6 @@
 package dev.contratop.contracounter.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -60,7 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import dev.contratop.contracounter.FullscreenCounterActivity
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -88,6 +80,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
     val updateStatus by viewModel.updateStatus.collectAsState()
     val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
+    val context = LocalContext.current
 
     ContraCounterTheme(
         colorTheme = colorTheme,
@@ -101,84 +94,10 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         var counterToDelete by remember { mutableStateOf<Counter?>(null) }
         var counterToEditDirectly by remember { mutableStateOf<Counter?>(null) }
         var counterForQuickAdjust by remember { mutableStateOf<Counter?>(null) }
-        var fullscreenCounterId by remember { mutableStateOf<String?>(null) }
         var showResetAllConfirm by remember { mutableStateOf(false) }
 
-        val m3EmphasizedDecelerate = remember { CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f) }
-        val m3EmphasizedAccelerate = remember { CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f) }
-
-        AnimatedContent(
-            targetState = fullscreenCounterId,
-            transitionSpec = {
-                if (targetState != null) {
-                    // Transición de apertura estilo Material 3 Container Expansion (Emphasized Decelerate)
-                    (scaleIn(
-                        initialScale = 0.90f,
-                        animationSpec = tween(durationMillis = 380, easing = m3EmphasizedDecelerate)
-                    ) + slideInVertically(
-                        initialOffsetY = { (it * 0.06f).toInt() },
-                        animationSpec = tween(durationMillis = 380, easing = m3EmphasizedDecelerate)
-                    ) + fadeIn(
-                        animationSpec = tween(durationMillis = 280, delayMillis = 40, easing = m3EmphasizedDecelerate)
-                    )) togetherWith (
-                        scaleOut(
-                            targetScale = 0.96f,
-                            animationSpec = tween(durationMillis = 180, easing = m3EmphasizedAccelerate)
-                        ) + fadeOut(
-                            animationSpec = tween(durationMillis = 180, easing = m3EmphasizedAccelerate)
-                        )
-                    )
-                } else {
-                    // Transición de salida estilo Material 3 Container Collapse (Emphasized Accelerate)
-                    (scaleIn(
-                        initialScale = 0.96f,
-                        animationSpec = tween(durationMillis = 300, easing = m3EmphasizedDecelerate)
-                    ) + fadeIn(
-                        animationSpec = tween(durationMillis = 240, easing = m3EmphasizedDecelerate)
-                    )) togetherWith (
-                        scaleOut(
-                            targetScale = 0.90f,
-                            animationSpec = tween(durationMillis = 250, easing = m3EmphasizedAccelerate)
-                        ) + slideOutVertically(
-                            targetOffsetY = { (it * 0.06f).toInt() },
-                            animationSpec = tween(durationMillis = 250, easing = m3EmphasizedAccelerate)
-                        ) + fadeOut(
-                            animationSpec = tween(durationMillis = 200, easing = m3EmphasizedAccelerate)
-                        )
-                    )
-                }
-            },
-            label = "fullscreen_screen_transition"
-        ) { activeId ->
-            if (activeId != null) {
-                val activeCounter = counters.find { it.id == activeId }
-                if (activeCounter != null) {
-                    val recentDelta = viewModel.recentDeltas[activeCounter.id] ?: 0L
-                    val isVisible = viewModel.isDeltaVisible[activeCounter.id] ?: false
-
-                    FullscreenCounterScreen(
-                        counter = activeCounter,
-                        recentDelta = recentDelta,
-                        isDeltaVisible = isVisible,
-                        onModify = { delta ->
-                            viewModel.modifyValue(activeCounter.id, delta)
-                        },
-                        onSetDirectValue = { newValue ->
-                            viewModel.setDirectValue(activeCounter.id, newValue)
-                        },
-                        onReset = {
-                            viewModel.resetCounter(activeCounter.id)
-                        },
-                        onBack = {
-                            fullscreenCounterId = null
-                        }
-                    )
-                } else {
-                    fullscreenCounterId = null
-                }
-            } else {
-                Scaffold(
-                    topBar = {
+        Scaffold(
+            topBar = {
                 // TopAppBar nativo de Google: alineado a la izquierda, al mantener pulsado el título abre Acerca de & Updates
                 TopAppBar(
                     title = {
@@ -301,14 +220,14 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                                 onDeleteRequest = { counterToDelete = counter },
                                 onDirectValueRequest = { counterToEditDirectly = counter },
                                 onQuickAdjustRequest = { counterForQuickAdjust = counter },
-                                onFullscreenRequest = { fullscreenCounterId = counter.id },
+                                onFullscreenRequest = {
+                                    FullscreenCounterActivity.start(context, counter.id)
+                                },
                                 modifier = Modifier.animateItemPlacement()
                             )
                         }
                     }
                 }
-            }
-        }
             }
         }
 

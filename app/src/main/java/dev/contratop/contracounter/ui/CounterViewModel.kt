@@ -30,13 +30,10 @@ sealed interface UpdateStatus {
 }
 
 class CounterViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = CounterRepository(application.applicationContext)
+    private val repository = CounterRepository.getInstance(application.applicationContext)
 
-    private val _counters = MutableStateFlow<List<Counter>>(emptyList())
-    val counters: StateFlow<List<Counter>> = _counters.asStateFlow()
-
-    private val _colorTheme = MutableStateFlow(AppColorTheme.MATERIAL_3)
-    val colorTheme: StateFlow<AppColorTheme> = _colorTheme.asStateFlow()
+    val counters: StateFlow<List<Counter>> = repository.countersFlow
+    val colorTheme: StateFlow<AppColorTheme> = repository.colorThemeFlow
 
     // Estado del comprobador de actualizaciones de GitHub
     private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
@@ -54,27 +51,17 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     // Trabajos activos de temporizador para ocultar el shadow tras 3 segundos de inactividad
     private val timerJobs = mutableMapOf<String, Job>()
 
-    init {
-        loadData()
-    }
-
-    private fun loadData() {
-        _counters.value = repository.loadCounters()
-        _colorTheme.value = repository.loadColorTheme()
-    }
-
     fun setColorTheme(theme: AppColorTheme) {
-        _colorTheme.value = theme
         repository.saveColorTheme(theme)
     }
 
     fun increment(counterId: String) {
-        val counter = _counters.value.firstOrNull { it.id == counterId } ?: return
+        val counter = repository.countersFlow.value.firstOrNull { it.id == counterId } ?: return
         applyDelta(counterId, counter.step)
     }
 
     fun decrement(counterId: String) {
-        val counter = _counters.value.firstOrNull { it.id == counterId } ?: return
+        val counter = repository.countersFlow.value.firstOrNull { it.id == counterId } ?: return
         applyDelta(counterId, -counter.step)
     }
 
@@ -83,14 +70,13 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun applyDelta(counterId: String, delta: Long) {
-        val currentList = _counters.value.toMutableList()
+        val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index == -1) return
 
         val counter = currentList[index]
         val updated = counter.copy(currentValue = counter.currentValue + delta)
         currentList[index] = updated
-        _counters.value = currentList
         repository.saveCounters(currentList)
 
         // Registrar en ventana de los últimos 5 segundos
@@ -119,11 +105,10 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun setDirectValue(counterId: String, newValue: Long) {
-        val currentList = _counters.value.toMutableList()
+        val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index != -1) {
             currentList[index] = currentList[index].copy(currentValue = newValue)
-            _counters.value = currentList
             repository.saveCounters(currentList)
 
             // Limpiar shadow delta para evitar confusión con el cambio directo
@@ -135,12 +120,11 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun resetCounter(counterId: String) {
-        val currentList = _counters.value.toMutableList()
+        val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index != -1) {
             val c = currentList[index]
             currentList[index] = c.copy(currentValue = c.initialValue)
-            _counters.value = currentList
             repository.saveCounters(currentList)
 
             // Limpiar shadow delta
@@ -159,14 +143,12 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
             step = step,
             colorIndex = colorIndex
         )
-        val updated = _counters.value + newCounter
-        _counters.value = updated
+        val updated = repository.countersFlow.value + newCounter
         repository.saveCounters(updated)
     }
 
     fun deleteCounter(counterId: String) {
-        val updated = _counters.value.filterNot { it.id == counterId }
-        _counters.value = updated
+        val updated = repository.countersFlow.value.filterNot { it.id == counterId }
         repository.saveCounters(updated)
 
         timerJobs[counterId]?.cancel()
@@ -177,8 +159,7 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun resetAllCounters() {
-        val updated = _counters.value.map { it.copy(currentValue = it.initialValue) }
-        _counters.value = updated
+        val updated = repository.countersFlow.value.map { it.copy(currentValue = it.initialValue) }
         repository.saveCounters(updated)
 
         timerJobs.values.forEach { it.cancel() }
