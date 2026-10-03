@@ -1,0 +1,116 @@
+name: ContraCounter Auto-Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_release:
+    name: Compilar y Publicar Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Dar permisos de ejecución a gradlew
+        run: chmod +x gradlew
+
+      - name: Decodificar Keystore (Opcional)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Decodificando release.keystore desde secreto..."
+            echo "$KEYSTORE_BASE64" | base64 -d > app/release.keystore
+          else
+            echo "No se ha proporcionado KEYSTORE_BASE64. Se utilizará la firma automática de fallback."
+          fi
+
+      - name: Compilar Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: Extraer Versión del Proyecto
+        id: extract_version
+        run: |
+          VERSION=$(grep 'versionName =' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/' | head -n 1)
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Versión detectada: $VERSION"
+
+      - name: Preparar y Renombrar APK
+        run: |
+          mv app/build/outputs/apk/release/app-release.apk ContraCounter-v${{ env.APP_VERSION }}.apk
+          ls -lh ContraCounter-v${{ env.APP_VERSION }}.apk
+
+      - name: Generar o Actualizar Release en GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          name: "🔢 ContraCounter v${{ env.APP_VERSION }} — Material 3 & Modo Poke Edition ✨"
+          draft: false
+          prerelease: false
+          body: |
+            ## 🔢 ContraCounter v${{ env.APP_VERSION }} ⚡
+            
+            > Aplicación moderna de contadores para Android construida en **Jetpack Compose + Material Design 3 (Material You)** nativo, ultra reactiva, ergonómica y pensada especialmente para la estética de Google Pixel.
+            
+            ---
+            
+            ### ✨ Novedades de la versión ${{ env.APP_VERSION }}
+            
+            #### 🎨 Diseño Nativo Google & Material You
+            - Barra superior limpia con el título *ContraCounter* alineado a la izquierda sin iconos innecesarios, idéntico a las aplicaciones nativas de Pixel.
+            - Adaptación automática del tema según la configuración del sistema (Claro / Oscuro) sin conmutadores manuales forzados.
+            
+            #### 🎭 Selector de Temas Visuales (Modal M3)
+            - **Material 3 (Pixel):** Dynamic Colors de Monet vinculados al fondo de pantalla de tu dispositivo.
+            - **Modo Poke 💕:** Estilo *fancy chic*, rosita pastel, blush y glamour en honor a Laura Poke.
+            - **Cyberpunk ⚡:** Night City vibes con tonos neón cian y acentos amarillo eléctrico.
+            - **Matcha Esmeralda 🌿:** Tonos botánicos y salvia ultra relajantes.
+            
+            #### 👻 Shadow Delta Tracker (5s / 3s)
+            - Acumulador inteligente de variaciones rápidas: al pulsar `+` o `-` repetidamente, muestra una insignia flotante con glow y sombra suave del balance neto acumulado en los últimos 5 segundos.
+            - Permanece visible durante 3 segundos tras la última interacción y se desvanece de forma suave.
+            
+            #### 🎯 Ajuste Directo de Cantidad por Pulsación Prolongada
+            - Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra deseada o usar los chips rápidos (`-10`, `-5`, `+5`, `+10`, inicial).
+            
+            #### 🛡️ Confirmaciones Protegidas para Reset y Borrado
+            - Se acabaron los reinicios por error: confirmación modal Material 3 antes de reiniciar o eliminar contadores.
+            
+            #### 💾 Persistencia de Datos
+            - Todos los contadores, cantidades, pasos y temas se guardan localmente para que continúes siempre donde lo dejaste.
+            
+            ---
+            
+            ### 📲 Instrucciones de Instalación
+            
+            1. Descarga el archivo adjunto **`ContraCounter-v${{ env.APP_VERSION }}.apk`**.
+            2. Ábrelo en tu dispositivo Android y pulsa en **Instalar** (permite la instalación de fuentes desconocidas si tu navegador te lo solicita).
+            3. ¡A disfrutar llevando la cuenta con estilo! 🔢✨
+            
+            ---
+            
+            *Desarrollado con ❤️ y mala leche por **ContratopDev** & **Conexor***
+          files: ContraCounter-v${{ env.APP_VERSION }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
