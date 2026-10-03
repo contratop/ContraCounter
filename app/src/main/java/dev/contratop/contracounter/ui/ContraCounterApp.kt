@@ -1,10 +1,14 @@
 package dev.contratop.contracounter.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -95,10 +99,49 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         var counterToDelete by remember { mutableStateOf<Counter?>(null) }
         var counterToEditDirectly by remember { mutableStateOf<Counter?>(null) }
         var counterForQuickAdjust by remember { mutableStateOf<Counter?>(null) }
+        var fullscreenCounterId by remember { mutableStateOf<String?>(null) }
         var showResetAllConfirm by remember { mutableStateOf(false) }
 
-        Scaffold(
-            topBar = {
+        AnimatedContent(
+            targetState = fullscreenCounterId,
+            transitionSpec = {
+                if (targetState != null) {
+                    (slideInVertically { it / 4 } + fadeIn()) togetherWith fadeOut()
+                } else {
+                    fadeIn() togetherWith (slideOutVertically { it / 4 } + fadeOut())
+                }
+            },
+            label = "fullscreen_screen_transition"
+        ) { activeId ->
+            if (activeId != null) {
+                val activeCounter = counters.find { it.id == activeId }
+                if (activeCounter != null) {
+                    val recentDelta = viewModel.recentDeltas[activeCounter.id] ?: 0L
+                    val isVisible = viewModel.isDeltaVisible[activeCounter.id] ?: false
+
+                    FullscreenCounterScreen(
+                        counter = activeCounter,
+                        recentDelta = recentDelta,
+                        isDeltaVisible = isVisible,
+                        onModify = { delta ->
+                            viewModel.modifyValue(activeCounter.id, delta)
+                        },
+                        onSetDirectValue = { newValue ->
+                            viewModel.setDirectValue(activeCounter.id, newValue)
+                        },
+                        onReset = {
+                            viewModel.resetCounter(activeCounter.id)
+                        },
+                        onBack = {
+                            fullscreenCounterId = null
+                        }
+                    )
+                } else {
+                    fullscreenCounterId = null
+                }
+            } else {
+                Scaffold(
+                    topBar = {
                 // TopAppBar nativo de Google: alineado a la izquierda, al mantener pulsado el título abre Acerca de & Updates
                 TopAppBar(
                     title = {
@@ -221,11 +264,14 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                                 onDeleteRequest = { counterToDelete = counter },
                                 onDirectValueRequest = { counterToEditDirectly = counter },
                                 onQuickAdjustRequest = { counterForQuickAdjust = counter },
+                                onFullscreenRequest = { fullscreenCounterId = counter.id },
                                 modifier = Modifier.animateItemPlacement()
                             )
                         }
                     }
                 }
+            }
+        }
             }
         }
 

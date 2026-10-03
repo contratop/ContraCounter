@@ -60,6 +60,7 @@ fun CounterCard(
     onDeleteRequest: () -> Unit,
     onDirectValueRequest: () -> Unit,
     onQuickAdjustRequest: () -> Unit,
+    onFullscreenRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -136,8 +137,8 @@ fun CounterCard(
                     .clip(RoundedCornerShape(18.dp))
                     .combinedClickable(
                         onClick = {
-                            // Feedback sutil al pulsar en el centro
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onFullscreenRequest()
                         },
                         onLongClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)

@@ -25,6 +25,12 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
   - **Columna central:** Contador gigante con animación vertical de odómetro hacia arriba con física elástica, shadow delta acumulado en tiempo real y botón de confirmación.
   - **Columna derecha:** Botones instantáneos para restar `-1`, `-2`, `-5`, `-10` y `- Custom`.
   - **Diálogo Custom:** Permite introducir cualquier valor a medida o usar chips rápidos (+5, +15, +20, +25, +50, +100).
+- 📺 **Modo Pantalla Completa Inmersivo:** Toca una vez sobre cualquier contador para abrir su pantalla completa dedicada:
+  - **Número Colosal:** Cifra en tamaño gigante (hasta 104sp) con animación vertical de odómetro con física elástica.
+  - **Botones Hero Gigantes (`+ 1` y `- 1`):** Ocupan toda la parte inferior (105dp de altura) para pulsar comodísimamente con los dos pulgares sin mirar.
+  - **Filas de Ajuste Rápido:** Acceso inmediato a `+2`, `+5`, `+10`, `+Custom` y `-2`, `-5`, `-10`, `-Custom`.
+  - **Mantener Pantalla Encendida (Keep Screen On):** Conmutador con icono de sol en la barra superior para que el móvil no entre en suspensión durante partidas de MTG, juegos de mesa o entrenamientos.
+  - **Acciones Directas:** Botones de edición directa de cifra, reseteo a valor inicial y navegación fluida con el botón atrás nativo de Android.
 - 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
 - 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
 - 👾 **Easter Egg & Comprobador de Actualizaciones GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el modal exclusivo con el logo de **ContratopDev**, versión actual y comprobación en tiempo real contra los releases de GitHub para notificarte y redirigirte a descargar actualizaciones al instante.
@@ -33,9 +39,9 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
 
 ## 📸 Capturas de Pantalla
 
-| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Ajuste Rápido (+/- 1,2,5,10,Cust) | Selector de Temas M3 | Programado por ContratopDev |
+| Vista Principal (Modo Poke 💕) | Pantalla Completa Hero (+1 / -1) | Shadow Delta Tracker (+3) | Ajuste Rápido Modal | Selector de Temas M3 |
 | :---: | :---: | :---: | :---: | :---: |
-| <img src="screenshots/contracounter_01_main_poke.png" width="160" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="160" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_quick_adjust_modal.png" width="160" alt="Ajuste Rápido Modal" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="160" alt="Selector de Temas M3" /> | <img src="screenshots/contracounter_about_modal.png" width="160" alt="Programado por ContratopDev y Updates" /> |
+| <img src="screenshots/contracounter_01_main_poke.png" width="150" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_fullscreen.png" width="150" alt="Pantalla Completa Hero" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="150" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_quick_adjust_modal.png" width="150" alt="Ajuste Rápido Modal" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="150" alt="Selector de Temas M3" /> |
 
 ---
 
@@ -65,6 +71,7 @@ ContraCounter/
 │   │   │   └── ui/
 │   │   │       ├── ContraCounterApp.kt
 │   │   │       ├── CounterViewModel.kt
+│   │   │       ├── FullscreenCounterScreen.kt
 │   │   │       ├── theme/
 │   │   │       │   ├── Color.kt
 │   │   │       │   ├── Theme.kt
