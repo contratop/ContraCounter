@@ -31,6 +31,7 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
   - **Filas de Ajuste Rápido:** Acceso inmediato a `+2`, `+5`, `+10`, `+Custom` y `-2`, `-5`, `-10`, `-Custom`.
   - **Mantener Pantalla Encendida (Keep Screen On):** Conmutador con icono de sol en la barra superior para que el móvil no entre en suspensión durante partidas de MTG, juegos de mesa o entrenamientos.
   - **Acciones Directas:** Botones de edición directa de cifra, reseteo a valor inicial y navegación fluida con el botón atrás nativo de Android.
+  - ✨ **Transición Material 3 Motion (Container Transform):** Apertura y cierre de la pantalla completa con curvas de aceleración y deceleración M3 (*Emphasized Decelerate / Accelerate*), escala elástica (0.90x -> 1.0x), desplazamiento sutil y fundidos sincronizados idénticos a las apps nativas de Google Pixel.
 - 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
 - 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
 - 👾 **Easter Egg & Comprobador de Actualizaciones GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el modal exclusivo con el logo de **ContratopDev**, versión actual y comprobación en tiempo real contra los releases de GitHub para notificarte y redirigirte a descargar actualizaciones al instante.
