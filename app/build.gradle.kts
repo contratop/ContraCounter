@@ -28,8 +28,6 @@ android {
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "contracounter"
                 keyAlias = System.getenv("KEY_ALIAS") ?: "contracounter"
                 keyPassword = System.getenv("KEY_PASSWORD") ?: "contracounter"
-            } else {
-                initWith(getByName("debug"))
             }
         }
     }
