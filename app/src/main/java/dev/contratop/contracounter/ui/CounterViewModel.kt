@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dev.contratop.contracounter.data.AppThemeMode
+import dev.contratop.contracounter.data.AppColorTheme
 import dev.contratop.contracounter.data.Counter
 import dev.contratop.contracounter.data.CounterRepository
 import dev.contratop.contracounter.data.DeltaEntry
@@ -21,11 +21,8 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     private val _counters = MutableStateFlow<List<Counter>>(emptyList())
     val counters: StateFlow<List<Counter>> = _counters.asStateFlow()
 
-    private val _themeMode = MutableStateFlow(AppThemeMode.SYSTEM)
-    val themeMode: StateFlow<AppThemeMode> = _themeMode.asStateFlow()
-
-    private val _dynamicColor = MutableStateFlow(true)
-    val dynamicColor: StateFlow<Boolean> = _dynamicColor.asStateFlow()
+    private val _colorTheme = MutableStateFlow(AppColorTheme.MATERIAL_3)
+    val colorTheme: StateFlow<AppColorTheme> = _colorTheme.asStateFlow()
 
     // Historial temporal de cambios en los últimos 5 segundos por contador
     private val deltaHistoryMap = mutableMapOf<String, MutableList<DeltaEntry>>()
@@ -45,18 +42,12 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadData() {
         _counters.value = repository.loadCounters()
-        _themeMode.value = repository.loadThemeMode()
-        _dynamicColor.value = repository.isDynamicColorEnabled()
+        _colorTheme.value = repository.loadColorTheme()
     }
 
-    fun setThemeMode(mode: AppThemeMode) {
-        _themeMode.value = mode
-        repository.saveThemeMode(mode)
-    }
-
-    fun setDynamicColor(enabled: Boolean) {
-        _dynamicColor.value = enabled
-        repository.setDynamicColorEnabled(enabled)
+    fun setColorTheme(theme: AppColorTheme) {
+        _colorTheme.value = theme
+        repository.saveColorTheme(theme)
     }
 
     fun increment(counterId: String) {

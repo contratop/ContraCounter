@@ -5,10 +5,29 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-enum class AppThemeMode {
-    SYSTEM,
-    LIGHT,
-    DARK
+/**
+ * Temas visuales internos de ContraCounter.
+ */
+enum class AppColorTheme(
+    val title: String,
+    val subtitle: String
+) {
+    MATERIAL_3(
+        title = "Material 3 (Pixel)",
+        subtitle = "Diseño nativo de Google con colores dinámicos del sistema"
+    ),
+    POKE(
+        title = "Modo Poke 💕",
+        subtitle = "Muy fancy chic, rosita pastel, tonos blush y glamour"
+    ),
+    CYBERPUNK(
+        title = "Cyberpunk ⚡",
+        subtitle = "Night City vibes, neón cian y acentos amarillo eléctrico"
+    ),
+    EMERALD(
+        title = "Matcha Esmeralda 🌿",
+        subtitle = "Tonos verdes calmados, salvia y estilo botánico moderno"
+    )
 }
 
 class CounterRepository(context: Context) {
@@ -17,14 +36,12 @@ class CounterRepository(context: Context) {
 
     companion object {
         private const val KEY_COUNTERS = "counters_json"
-        private const val KEY_THEME_MODE = "theme_mode"
-        private const val KEY_DYNAMIC_COLOR = "dynamic_color"
+        private const val KEY_COLOR_THEME = "color_theme"
     }
 
     fun loadCounters(): List<Counter> {
         val json = prefs.getString(KEY_COUNTERS, null)
         if (json.isNullOrBlank()) {
-            // Valores por defecto iniciales inspirados en la captura del usuario
             val defaults = listOf(
                 Counter(title = "VIDA", currentValue = 20, initialValue = 20, step = 1, colorIndex = 1),
                 Counter(title = "CONTADOR", currentValue = 0, initialValue = 0, step = 1, colorIndex = 0),
@@ -47,24 +64,16 @@ class CounterRepository(context: Context) {
         prefs.edit().putString(KEY_COUNTERS, json).apply()
     }
 
-    fun loadThemeMode(): AppThemeMode {
-        val modeStr = prefs.getString(KEY_THEME_MODE, AppThemeMode.SYSTEM.name)
+    fun loadColorTheme(): AppColorTheme {
+        val themeStr = prefs.getString(KEY_COLOR_THEME, AppColorTheme.MATERIAL_3.name)
         return try {
-            AppThemeMode.valueOf(modeStr ?: AppThemeMode.SYSTEM.name)
+            AppColorTheme.valueOf(themeStr ?: AppColorTheme.MATERIAL_3.name)
         } catch (e: Exception) {
-            AppThemeMode.SYSTEM
+            AppColorTheme.MATERIAL_3
         }
     }
 
-    fun saveThemeMode(mode: AppThemeMode) {
-        prefs.edit().putString(KEY_THEME_MODE, mode.name).apply()
-    }
-
-    fun isDynamicColorEnabled(): Boolean {
-        return prefs.getBoolean(KEY_DYNAMIC_COLOR, true)
-    }
-
-    fun setDynamicColorEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_DYNAMIC_COLOR, enabled).apply()
+    fun saveColorTheme(theme: AppColorTheme) {
+        prefs.edit().putString(KEY_COLOR_THEME, theme.name).apply()
     }
 }

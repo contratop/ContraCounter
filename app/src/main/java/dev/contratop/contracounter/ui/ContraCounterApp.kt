@@ -26,33 +26,26 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ColorLens
-import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PlusOne
 import androidx.compose.material.icons.rounded.RestartAlt
-import androidx.compose.material.icons.rounded.SettingsBrightness
-import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,136 +54,82 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.contratop.contracounter.data.AppThemeMode
+import dev.contratop.contracounter.data.AppColorTheme
 import dev.contratop.contracounter.data.Counter
 import dev.contratop.contracounter.ui.components.AddCounterDialog
 import dev.contratop.contracounter.ui.components.CounterCard
 import dev.contratop.contracounter.ui.components.DeleteConfirmDialog
 import dev.contratop.contracounter.ui.components.ResetConfirmDialog
 import dev.contratop.contracounter.ui.components.SetDirectValueDialog
+import dev.contratop.contracounter.ui.components.ThemeSelectorDialog
 import dev.contratop.contracounter.ui.theme.ContraCounterTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ContraCounterApp(viewModel: CounterViewModel) {
     val counters by viewModel.counters.collectAsState()
-    val themeMode by viewModel.themeMode.collectAsState()
-    val dynamicColor by viewModel.dynamicColor.collectAsState()
-
-    val systemInDark = isSystemInDarkTheme()
-    val isDarkActive = when (themeMode) {
-        AppThemeMode.SYSTEM -> systemInDark
-        AppThemeMode.LIGHT -> false
-        AppThemeMode.DARK -> true
-    }
+    val colorTheme by viewModel.colorTheme.collectAsState()
+    val isDark = isSystemInDarkTheme()
 
     ContraCounterTheme(
-        darkTheme = isDarkActive,
-        dynamicColor = dynamicColor
+        colorTheme = colorTheme,
+        darkTheme = isDark // Se adapta automáticamente al sistema
     ) {
         var showAddDialog by remember { mutableStateOf(false) }
+        var showThemeDialog by remember { mutableStateOf(false) }
+        var showOptionsMenu by remember { mutableStateOf(false) }
         var counterToReset by remember { mutableStateOf<Counter?>(null) }
         var counterToDelete by remember { mutableStateOf<Counter?>(null) }
         var counterToEditDirectly by remember { mutableStateOf<Counter?>(null) }
         var showResetAllConfirm by remember { mutableStateOf(false) }
-        var showThemeMenu by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
+                // TopAppBar nativo de Google: alineado a la izquierda y sin icono
+                TopAppBar(
                     title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Tag,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = "ContraCounter",
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Black,
-                                    letterSpacing = 0.5.sp
-                                )
-                            )
-                        }
+                        Text(
+                            text = "ContraCounter",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     },
                     actions = {
-                        // Botón de alternancia de tema rápido
-                        IconButton(onClick = {
-                            val nextMode = when (themeMode) {
-                                AppThemeMode.DARK -> AppThemeMode.LIGHT
-                                AppThemeMode.LIGHT -> AppThemeMode.SYSTEM
-                                AppThemeMode.SYSTEM -> AppThemeMode.DARK
-                            }
-                            viewModel.setThemeMode(nextMode)
-                        }) {
+                        // Botón de temas internos (Material 3, Modo Poke, etc.)
+                        IconButton(onClick = { showThemeDialog = true }) {
                             Icon(
-                                imageVector = when (themeMode) {
-                                    AppThemeMode.DARK -> Icons.Rounded.DarkMode
-                                    AppThemeMode.LIGHT -> Icons.Rounded.LightMode
-                                    AppThemeMode.SYSTEM -> Icons.Rounded.SettingsBrightness
-                                },
-                                contentDescription = "Cambiar tema",
+                                imageVector = Icons.Rounded.Palette,
+                                contentDescription = "Temas",
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
-                        // Menú desplegable adicional (Material You, Reiniciar todos)
+                        // Menú de opciones (Reiniciar todos los contadores)
                         Box {
-                            IconButton(onClick = { showThemeMenu = true }) {
+                            IconButton(onClick = { showOptionsMenu = true }) {
                                 Icon(
                                     imageVector = Icons.Rounded.MoreVert,
-                                    contentDescription = "Opciones",
+                                    contentDescription = "Más opciones",
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
 
                             DropdownMenu(
-                                expanded = showThemeMenu,
-                                onDismissRequest = { showThemeMenu = false }
+                                expanded = showOptionsMenu,
+                                onDismissRequest = { showOptionsMenu = false }
                             ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text("Color Dinámico (Pixel)")
-                                            Spacer(modifier = Modifier.width(12.dp))
-                                            Switch(
-                                                checked = dynamicColor,
-                                                onCheckedChange = { viewModel.setDynamicColor(it) }
-                                            )
-                                        }
-                                    },
-                                    onClick = { viewModel.setDynamicColor(!dynamicColor) },
-                                    leadingIcon = {
-                                        Icon(Icons.Rounded.ColorLens, contentDescription = null)
-                                    }
-                                )
-
                                 DropdownMenuItem(
                                     text = { Text("Reiniciar todos los contadores") },
                                     onClick = {
-                                        showThemeMenu = false
+                                        showOptionsMenu = false
                                         showResetAllConfirm = true
                                     },
                                     leadingIcon = {
@@ -204,7 +143,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                             }
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     )
                 )
@@ -233,7 +172,6 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 if (counters.isEmpty()) {
-                    // Estado vacío elegante en Material 3
                     EmptyCountersState(
                         onAddClick = { showAddDialog = true }
                     )
@@ -265,6 +203,17 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                     }
                 }
             }
+        }
+
+        // MODAL: Selector de temas internos (Material 3, Modo Poke, etc.)
+        if (showThemeDialog) {
+            ThemeSelectorDialog(
+                currentTheme = colorTheme,
+                onThemeSelected = { newTheme ->
+                    viewModel.setColorTheme(newTheme)
+                },
+                onDismiss = { showThemeDialog = false }
+            )
         }
 
         // DIÁLOGO: Añadir Contador
@@ -319,7 +268,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
             AlertDialog(
                 onDismissRequest = { showResetAllConfirm = false },
                 shape = RoundedCornerShape(28.dp),
-                containerColor = if (isDarkActive) Color(0xFF26242A) else Color(0xFFF5EEF8),
+                containerColor = if (isDark) Color(0xFF26242A) else Color(0xFFF5EEF8),
                 icon = {
                     Icon(
                         Icons.Rounded.RestartAlt,
