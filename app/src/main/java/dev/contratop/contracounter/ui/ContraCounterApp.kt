@@ -52,6 +52,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -61,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.contratop.contracounter.data.AppColorTheme
 import dev.contratop.contracounter.data.Counter
+import dev.contratop.contracounter.ui.components.AboutDialog
 import dev.contratop.contracounter.ui.components.AddCounterDialog
 import dev.contratop.contracounter.ui.components.CounterCard
 import dev.contratop.contracounter.ui.components.DeleteConfirmDialog
@@ -74,6 +78,8 @@ import dev.contratop.contracounter.ui.theme.ContraCounterTheme
 fun ContraCounterApp(viewModel: CounterViewModel) {
     val counters by viewModel.counters.collectAsState()
     val colorTheme by viewModel.colorTheme.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
+    val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
 
     ContraCounterTheme(
@@ -83,6 +89,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         var showAddDialog by remember { mutableStateOf(false) }
         var showThemeDialog by remember { mutableStateOf(false) }
         var showOptionsMenu by remember { mutableStateOf(false) }
+        var showAboutDialog by remember { mutableStateOf(false) }
         var counterToReset by remember { mutableStateOf<Counter?>(null) }
         var counterToDelete by remember { mutableStateOf<Counter?>(null) }
         var counterToEditDirectly by remember { mutableStateOf<Counter?>(null) }
@@ -90,17 +97,31 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
 
         Scaffold(
             topBar = {
-                // TopAppBar nativo de Google: alineado a la izquierda y sin icono
+                // TopAppBar nativo de Google: alineado a la izquierda, al mantener pulsado el título abre Acerca de & Updates
                 TopAppBar(
                     title = {
-                        Text(
-                            text = "ContraCounter",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .combinedClickable(
+                                    onClick = { /* Click normal */ },
+                                    onLongClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        showAboutDialog = true
+                                        viewModel.checkForUpdates()
+                                    }
+                                )
+                                .padding(horizontal = 6.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "ContraCounter",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     },
                     actions = {
                         // Botón de temas internos (Material 3, Modo Poke, etc.)
@@ -213,6 +234,15 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                     viewModel.setColorTheme(newTheme)
                 },
                 onDismiss = { showThemeDialog = false }
+            )
+        }
+
+        // MODAL: Acerca de y Comprobador de Actualizaciones (Long-press en el título)
+        if (showAboutDialog) {
+            AboutDialog(
+                updateStatus = updateStatus,
+                onCheckUpdates = { viewModel.checkForUpdates() },
+                onDismiss = { showAboutDialog = false }
             )
         }
 

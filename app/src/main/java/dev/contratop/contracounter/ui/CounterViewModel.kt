@@ -4,16 +4,30 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.contratop.contracounter.BuildConfig
 import dev.contratop.contracounter.data.AppColorTheme
 import dev.contratop.contracounter.data.Counter
 import dev.contratop.contracounter.data.CounterRepository
 import dev.contratop.contracounter.data.DeltaEntry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+
+sealed interface UpdateStatus {
+    object Idle : UpdateStatus
+    object Checking : UpdateStatus
+    data class Available(val version: String, val releaseNotes: String, val downloadUrl: String) : UpdateStatus
+    object UpToDate : UpdateStatus
+    data class Error(val message: String) : UpdateStatus
+}
 
 class CounterViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CounterRepository(application.applicationContext)
@@ -23,6 +37,10 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
     private val _colorTheme = MutableStateFlow(AppColorTheme.MATERIAL_3)
     val colorTheme: StateFlow<AppColorTheme> = _colorTheme.asStateFlow()
+
+    // Estado del comprobador de actualizaciones de GitHub
+    private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
+    val updateStatus: StateFlow<UpdateStatus> = _updateStatus.asStateFlow()
 
     // Historial temporal de cambios en los últimos 5 segundos por contador
     private val deltaHistoryMap = mutableMapOf<String, MutableList<DeltaEntry>>()
@@ -164,5 +182,86 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         deltaHistoryMap.clear()
         recentDeltas.clear()
         isDeltaVisible.clear()
+    }
+
+    /**
+     * Comprueba si existe una release más reciente en GitHub.
+     */
+    fun checkForUpdates() {
+        _updateStatus.value = UpdateStatus.Checking
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL("https://api.github.com/repos/contratop/ContraCounter/releases/latest")
+                val connection = (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/vnd.github.v3+json")
+                    setRequestProperty("User-Agent", "ContraCounter-Android")
+                    connectTimeout = 7000
+                    readTimeout = 7000
+                }
+
+                val responseCode = connection.responseCode
+                if (responseCode == 200) {
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(response)
+                    val tagName = json.optString("tag_name", "").trim()
+                    val body = json.optString("body", "")
+                    val htmlUrl = json.optString("html_url", "https://github.com/contratop/ContraCounter/releases")
+
+                    val currentVersion = BuildConfig.VERSION_NAME
+                    val isNewer = isNewerVersion(tagName, currentVersion)
+
+                    withContext(Dispatchers.Main) {
+                        if (isNewer) {
+                            _updateStatus.value = UpdateStatus.Available(
+                                version = tagName,
+                                releaseNotes = body,
+                                downloadUrl = htmlUrl
+                            )
+                        } else {
+                            _updateStatus.value = UpdateStatus.UpToDate
+                        }
+                    }
+                } else if (responseCode == 404) {
+                    // Aún no hay ninguna release pública en el repositorio de GitHub
+                    withContext(Dispatchers.Main) {
+                        _updateStatus.value = UpdateStatus.UpToDate
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        _updateStatus.value = UpdateStatus.Error("Servidor respondió con código $responseCode")
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    _updateStatus.value = UpdateStatus.Error(e.localizedMessage ?: "Fallo de conexión")
+                }
+            }
+        }
+    }
+
+    private fun parseVersion(version: String): List<Int> {
+        return version.removePrefix("v")
+            .split(".", "-")
+            .mapNotNull { part ->
+                part.filter { it.isDigit() }.toIntOrNull()
+            }
+    }
+
+    private fun isNewerVersion(remoteTag: String, currentVersion: String): Boolean {
+        val rParts = parseVersion(remoteTag)
+        val cParts = parseVersion(currentVersion)
+        if (rParts.isEmpty() || cParts.isEmpty()) {
+            return remoteTag.removePrefix("v") > currentVersion.removePrefix("v")
+        }
+        val maxLen = maxOf(rParts.size, cParts.size)
+        for (i in 0 until maxLen) {
+            val r = rParts.getOrElse(i) { 0 }
+            val c = cParts.getOrElse(i) { 0 }
+            if (r > c) return true
+            if (r < c) return false
+        }
+        return false
     }
 }

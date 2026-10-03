@@ -22,14 +22,15 @@ La mayoría de apps de contadores parecen sacadas de 2012: cuadrículas negras m
 - ➕ **Nuevo Contador con Cantidad Inicial y Paso:** Diálogo de creación con selector de cantidad inicial, tamaño de paso (`step`), paletas de acento visual (Esmeralda, Rubí, Zafiro, Ámbar, Amatista, Poke Pink) y plantillas predefinidas (Vida MTG 20/40, Rondas, etc.).
 - 💾 **Persistencia Instantánea:** Todos tus contadores, estados, pasos y colores se guardan localmente para que continúes exactamente donde lo dejaste.
 - 📳 **Haptic Feedback:** Respuesta háptica táctil refinada en cada interacción y pulsación larga.
+- 👾 **Easter Egg & Comprobador de Actualizaciones GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el modal exclusivo con el logo de **ContratopDev**, versión actual y comprobación en tiempo real contra los releases de GitHub para notificarte y redirigirte a descargar actualizaciones al instante.
 
 ---
 
 ## 📸 Capturas de Pantalla
 
-| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Selector de Temas Material 3 |
-| :---: | :---: | :---: |
-| <img src="screenshots/contracounter_01_main_poke.png" width="260" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="260" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="260" alt="Selector de Temas M3" /> |
+| Vista Principal (Modo Poke 💕) | Shadow Delta Tracker (+3) | Selector de Temas Material 3 | Programado por ContratopDev & Updates |
+| :---: | :---: | :---: | :---: |
+| <img src="screenshots/contracounter_01_main_poke.png" width="200" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="200" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="200" alt="Selector de Temas M3" /> | <img src="screenshots/contracounter_about_modal.png" width="200" alt="Programado por ContratopDev y Updates" /> |
 
 ---
 
@@ -69,9 +70,13 @@ ContraCounter/
 │   │   │           ├── AddCounterDialog.kt
 │   │   │           ├── SetDirectValueDialog.kt
 │   │   │           ├── ResetConfirmDialog.kt
-│   │   │           └── DeleteConfirmDialog.kt
+│   │   │           ├── DeleteConfirmDialog.kt
+│   │   │           ├── ThemeSelectorDialog.kt
+│   │   │           └── AboutDialog.kt
 │   │   └── res/
-│   │       ├── drawable/app_icon.xml
+│   │       ├── drawable/
+│   │       │   ├── app_icon.xml
+│   │       │   └── contratop_logo.png
 │   │       └── values/
 ├── build.gradle.kts
 ├── settings.gradle.kts
