@@ -2,6 +2,8 @@ package dev.contratop.contracounter.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -102,13 +104,48 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         var fullscreenCounterId by remember { mutableStateOf<String?>(null) }
         var showResetAllConfirm by remember { mutableStateOf(false) }
 
+        val m3EmphasizedDecelerate = remember { CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f) }
+        val m3EmphasizedAccelerate = remember { CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f) }
+
         AnimatedContent(
             targetState = fullscreenCounterId,
             transitionSpec = {
                 if (targetState != null) {
-                    (slideInVertically { it / 4 } + fadeIn()) togetherWith fadeOut()
+                    // Transición de apertura estilo Material 3 Container Expansion (Emphasized Decelerate)
+                    (scaleIn(
+                        initialScale = 0.90f,
+                        animationSpec = tween(durationMillis = 380, easing = m3EmphasizedDecelerate)
+                    ) + slideInVertically(
+                        initialOffsetY = { (it * 0.06f).toInt() },
+                        animationSpec = tween(durationMillis = 380, easing = m3EmphasizedDecelerate)
+                    ) + fadeIn(
+                        animationSpec = tween(durationMillis = 280, delayMillis = 40, easing = m3EmphasizedDecelerate)
+                    )) togetherWith (
+                        scaleOut(
+                            targetScale = 0.96f,
+                            animationSpec = tween(durationMillis = 180, easing = m3EmphasizedAccelerate)
+                        ) + fadeOut(
+                            animationSpec = tween(durationMillis = 180, easing = m3EmphasizedAccelerate)
+                        )
+                    )
                 } else {
-                    fadeIn() togetherWith (slideOutVertically { it / 4 } + fadeOut())
+                    // Transición de salida estilo Material 3 Container Collapse (Emphasized Accelerate)
+                    (scaleIn(
+                        initialScale = 0.96f,
+                        animationSpec = tween(durationMillis = 300, easing = m3EmphasizedDecelerate)
+                    ) + fadeIn(
+                        animationSpec = tween(durationMillis = 240, easing = m3EmphasizedDecelerate)
+                    )) togetherWith (
+                        scaleOut(
+                            targetScale = 0.90f,
+                            animationSpec = tween(durationMillis = 250, easing = m3EmphasizedAccelerate)
+                        ) + slideOutVertically(
+                            targetOffsetY = { (it * 0.06f).toInt() },
+                            animationSpec = tween(durationMillis = 250, easing = m3EmphasizedAccelerate)
+                        ) + fadeOut(
+                            animationSpec = tween(durationMillis = 200, easing = m3EmphasizedAccelerate)
+                        )
+                    )
                 }
             },
             label = "fullscreen_screen_transition"
