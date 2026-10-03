@@ -51,13 +51,7 @@ class CounterRepository private constructor(context: Context) {
     private fun loadCountersFromDisk(): List<Counter> {
         val json = prefs.getString(KEY_COUNTERS, null)
         if (json.isNullOrBlank()) {
-            val defaults = listOf(
-                Counter(title = "VIDA", currentValue = 20, initialValue = 20, step = 1, colorIndex = 1),
-                Counter(title = "CONTADOR", currentValue = 0, initialValue = 0, step = 1, colorIndex = 0),
-                Counter(title = "EJEMPLO", currentValue = 0, initialValue = 0, step = 1, colorIndex = 2)
-            )
-            saveCounters(defaults)
-            return defaults
+            return emptyList()
         }
 
         return try {
