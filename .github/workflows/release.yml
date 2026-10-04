@@ -84,6 +84,12 @@ jobs:
             
             ---
             
+            > [!WARNING]
+            > ### ⚠️ NOTA DE INSTALACIÓN / ACTUALIZACIÓN DESDE v1.0.0
+            > Si venías de la versión **v1.0.0**, Android te mostrará *"Aplicación no instalada"*. Desinstala primero la versión **v1.0.0** e instala este APK. A partir de esta versión, la clave criptográfica de firma es fija y permanente, garantizando que todas las actualizaciones futuras se instalen directamente.
+            
+            ---
+            
             ### ✨ ¿Qué hay de nuevo en la versión ${{ env.APP_VERSION }}?
             
             #### ⚔️ Modo Duelo Cara a Cara (2 Jugadores en Mesa)

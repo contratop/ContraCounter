@@ -158,6 +158,11 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 El APK firmado para distribución se genera en:
 `app/build/outputs/apk/release/app-release.apk`
 
+## 📲 Instalación y Actualizaciones
+
+- **Descarga directa:** Puedes descargar el APK de producción desde la pestaña de [Releases de GitHub](https://github.com/contratop/ContraCounter/releases/latest).
+- **Nota para usuarios de la v1.0.0:** Debido al cambio a una clave de firma criptográfica permanente y fija en el repositorio para evitar incompatibilidades en CI, si tenías instalada la versión `v1.0.0`, debes desinstalarla antes de instalar la `v2.0.0` (o verás el mensaje *"Aplicación no instalada"*). A partir de la `v2.0.0`, todas las futuras versiones se actualizarán limpiamente sin desinstalar.
+
 ---
 
 ## 👥 Desarrollado por
