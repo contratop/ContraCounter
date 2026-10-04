@@ -11,15 +11,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.view.WindowCompat
 import dev.contratop.contracounter.ui.CounterViewModel
-import dev.contratop.contracounter.ui.FullscreenCounterScreen
+import dev.contratop.contracounter.ui.HistoryScreen
 import dev.contratop.contracounter.ui.theme.ContraCounterTheme
 
 /**
- * Actividad dedicada para el contador a pantalla completa.
- * Al ser una Activity independiente, Android OS ejecuta la transición nativa del sistema
- * (apertura de ventana, gesto predictive back de Android 14/15 en Pixel, etc.).
+ * Actividad independiente que muestra el historial de modificaciones del contador,
+ * agrupado por día, con la puntuación sumada o restada y la hora exacta (HH:mm:ss).
  */
-class FullscreenCounterActivity : ComponentActivity() {
+class HistoryActivity : ComponentActivity() {
 
     private val viewModel: CounterViewModel by viewModels()
 
@@ -35,6 +34,7 @@ class FullscreenCounterActivity : ComponentActivity() {
         setContent {
             val counters by viewModel.counters.collectAsState()
             val colorTheme by viewModel.colorTheme.collectAsState()
+            val allHistory by viewModel.historyFlow.collectAsState()
             val hapticsEnabled by viewModel.hapticsEnabled.collectAsState()
             val isDark = isSystemInDarkTheme()
 
@@ -43,35 +43,18 @@ class FullscreenCounterActivity : ComponentActivity() {
                 darkTheme = isDark,
                 hapticsEnabled = hapticsEnabled
             ) {
-                val activeCounter = counters.find { it.id == counterId }
-                if (activeCounter != null) {
-                    val recentDelta = viewModel.recentDeltas[activeCounter.id] ?: 0L
-                    val isVisible = viewModel.isDeltaVisible[activeCounter.id] ?: false
+                val counter = counters.find { it.id == counterId }
+                if (counter != null) {
+                    val counterHistory = allHistory.filter { it.counterId == counterId }
 
-                    FullscreenCounterScreen(
-                        counter = activeCounter,
-                        recentDelta = recentDelta,
-                        isDeltaVisible = isVisible,
-                        onModify = { delta ->
-                            viewModel.modifyValue(activeCounter.id, delta)
-                        },
-                        onSetDirectValue = { newValue ->
-                            viewModel.setDirectValue(activeCounter.id, newValue)
-                        },
-                        onReset = {
-                            viewModel.resetCounter(activeCounter.id)
+                    HistoryScreen(
+                        counter = counter,
+                        history = counterHistory,
+                        onClearHistory = {
+                            viewModel.clearHistory(counter.id)
                         },
                         onBack = {
                             finish()
-                        },
-                        onOpenHistory = {
-                            HistoryActivity.start(this@FullscreenCounterActivity, activeCounter.id)
-                        },
-                        onAddNote = { note ->
-                            viewModel.addHistoryNote(activeCounter.id, note)
-                        },
-                        onUpdateLimits = { target, ko ->
-                            viewModel.updateCounterLimits(activeCounter.id, target, ko)
                         }
                     )
                 } else {
@@ -85,7 +68,7 @@ class FullscreenCounterActivity : ComponentActivity() {
         const val EXTRA_COUNTER_ID = "extra_counter_id"
 
         fun start(context: Context, counterId: String) {
-            val intent = Intent(context, FullscreenCounterActivity::class.java).apply {
+            val intent = Intent(context, HistoryActivity::class.java).apply {
                 putExtra(EXTRA_COUNTER_ID, counterId)
             }
             context.startActivity(intent)

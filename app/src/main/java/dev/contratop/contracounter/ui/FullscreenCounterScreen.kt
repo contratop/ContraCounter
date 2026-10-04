@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -35,6 +36,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material.icons.rounded.EmojiEvents
+import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.HeartBroken
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Remove
@@ -57,6 +63,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +85,7 @@ import androidx.compose.ui.unit.sp
 import dev.contratop.contracounter.data.Counter
 import dev.contratop.contracounter.ui.components.ResetConfirmDialog
 import dev.contratop.contracounter.ui.components.SetDirectValueDialog
+import dev.contratop.contracounter.ui.components.SetLimitsDialog
 import dev.contratop.contracounter.ui.components.ShadowDeltaBadge
 import dev.contratop.contracounter.ui.theme.CounterAccents
 
@@ -103,7 +111,10 @@ fun FullscreenCounterScreen(
     onModify: (delta: Long) -> Unit,
     onSetDirectValue: (newValue: Long) -> Unit,
     onReset: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenHistory: () -> Unit = {},
+    onAddNote: (String) -> Unit = {},
+    onUpdateLimits: (targetValue: Long?, koValue: Long?) -> Unit = { _, _ -> }
 ) {
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -130,7 +141,25 @@ fun FullscreenCounterScreen(
 
     var showEditDirectDialog by remember { mutableStateOf(false) }
     var showResetConfirmDialog by remember { mutableStateOf(false) }
+    var showAddNoteDialog by remember { mutableStateOf(false) }
+    var showSetLimitsDialog by remember { mutableStateOf(false) }
+    var showVictoryDialog by remember { mutableStateOf(false) }
+    var showKoDialog by remember { mutableStateOf(false) }
+    var lastKnownValue by remember { mutableStateOf(counter.currentValue) }
     var customAdjustIsAdd by remember { mutableStateOf<Boolean?>(null) }
+
+    LaunchedEffect(counter.currentValue) {
+        val prev = lastKnownValue
+        val curr = counter.currentValue
+        if (counter.targetValue != null && prev < counter.targetValue && curr >= counter.targetValue) {
+            showVictoryDialog = true
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        } else if (counter.koValue != null && prev > counter.koValue && curr <= counter.koValue) {
+            showKoDialog = true
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+        lastKnownValue = curr
+    }
 
     Scaffold(
         topBar = {
@@ -169,6 +198,38 @@ fun FullscreenCounterScreen(
                     }
                 },
                 actions = {
+                    // Botón Ver Historial de Cambios
+                    IconButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onOpenHistory()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.History,
+                            contentDescription = "Ver historial",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // Botón Configurar Metas y K.O.
+                    IconButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            showSetLimitsDialog = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.EmojiEvents,
+                            contentDescription = "Metas y límites",
+                            tint = if (counter.targetValue != null || counter.koValue != null) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    }
+
                     // Botón Mantener Pantalla Encendida (Keep Screen On)
                     IconButton(
                         onClick = {
@@ -295,6 +356,81 @@ fun FullscreenCounterScreen(
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
+
+                    // Badges interactivos de Metas y Límites
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (counter.targetValue != null) {
+                            Surface(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    showSetLimitsDialog = true
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isDark) Color(0xFF332B15) else Color(0xFFFFF8E1),
+                                border = BorderStroke(1.dp, if (isDark) Color(0xFFFFD54F) else Color(0xFFFFB300))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🏆 Meta: ${counter.targetValue}",
+                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = if (isDark) Color(0xFFFFE082) else Color(0xFFF57F17)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (counter.koValue != null) {
+                            Surface(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    showSetLimitsDialog = true
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isDark) Color(0xFF351C1C) else Color(0xFFFFEBEE),
+                                border = BorderStroke(1.dp, if (isDark) Color(0xFFE57373) else Color(0xFFE53935))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "💀 K.O.: ${counter.koValue}",
+                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = if (isDark) Color(0xFFFFCDD2) else Color(0xFFC62828)
+                                    )
+                                }
+                            }
+                        }
+
+                        if (counter.targetValue == null && counter.koValue == null) {
+                            Surface(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    showSetLimitsDialog = true
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🏆 + Metas / K.O.",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -303,6 +439,47 @@ fun FullscreenCounterScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // BOTÓN ANCHO: AÑADIR ANOTACIÓN AL HISTORIAL
+                Surface(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        showAddNoteDialog = true
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isDark) 0.45f else 0.6f),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (isDark) 0.35f else 0.5f)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.EditNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Añadir anotación",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+
                 // FILA DE AJUSTE RÁPIDO PARA SUMAR (+2, +5, +10, +Custom)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -413,7 +590,7 @@ fun FullscreenCounterScreen(
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // BOTÓN GIGANTE SUMAR 1 (+1)
-                    val addGreen = Color(0xFF4CAF50)
+                    val addGreen = if (isDark) Color(0xFF81C784) else Color(0xFF2E7D32)
                     val addBg = if (isDark) Color(0xFF1B3B22) else Color(0xFFE8F5E9)
                     val addBorder = if (isDark) Color(0xFF2E7D32) else Color(0xFFA5D6A7)
 
@@ -441,12 +618,12 @@ fun FullscreenCounterScreen(
                                 tint = addGreen,
                                 modifier = Modifier.size(36.dp)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "+ 1",
+                                text = "1",
                                 style = MaterialTheme.typography.displaySmall.copy(
                                     fontWeight = FontWeight.Black,
-                                    fontSize = 34.sp
+                                    fontSize = 38.sp
                                 ),
                                 color = addGreen
                             )
@@ -454,7 +631,7 @@ fun FullscreenCounterScreen(
                     }
 
                     // BOTÓN GIGANTE RESTAR 1 (-1)
-                    val subRed = MaterialTheme.colorScheme.error
+                    val subRed = if (isDark) MaterialTheme.colorScheme.error else Color(0xFFC62828)
                     val subBg = if (isDark) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f) else Color(0xFFFFEBEE)
                     val subBorder = if (isDark) MaterialTheme.colorScheme.error.copy(alpha = 0.6f) else Color(0xFFEF9A9A)
 
@@ -482,12 +659,12 @@ fun FullscreenCounterScreen(
                                 tint = subRed,
                                 modifier = Modifier.size(36.dp)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "- 1",
+                                text = "1",
                                 style = MaterialTheme.typography.displaySmall.copy(
                                     fontWeight = FontWeight.Black,
-                                    fontSize = 34.sp
+                                    fontSize = 38.sp
                                 ),
                                 color = subRed
                             )
@@ -519,6 +696,148 @@ fun FullscreenCounterScreen(
                 showResetConfirmDialog = false
             },
             onDismiss = { showResetConfirmDialog = false }
+        )
+    }
+
+    // DIÁLOGO: Añadir anotación al historial
+    if (showAddNoteDialog) {
+        AddNoteDialog(
+            counter = counter,
+            onConfirm = { note ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                showAddNoteDialog = false
+                onAddNote(note)
+            },
+            onDismiss = { showAddNoteDialog = false }
+        )
+    }
+
+    // DIÁLOGO: Configuración de Metas y Límites de K.O.
+    if (showSetLimitsDialog) {
+        SetLimitsDialog(
+            counter = counter,
+            onConfirm = { newTarget, newKo ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onUpdateLimits(newTarget, newKo)
+                showSetLimitsDialog = false
+            },
+            onDismiss = { showSetLimitsDialog = false }
+        )
+    }
+
+    // DIÁLOGO DE ALERTA: ¡VICTORIA ALCANZADA! 🏆
+    if (showVictoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showVictoryDialog = false },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = if (isDark) Color(0xFF2B271A) else Color(0xFFFFF9E6),
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.EmojiEvents,
+                    contentDescription = null,
+                    tint = Color(0xFFFFB300),
+                    modifier = Modifier.size(52.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "¡VICTORIA CONSEGUIDA! 🏆",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "¡Enhorabuena! Has alcanzado la meta fijada de ${counter.targetValue} puntos en \"${counter.title}\".",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onReset()
+                        showVictoryDialog = false
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Reiniciar partida")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showVictoryDialog = false },
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Seguir jugando")
+                }
+            }
+        )
+    }
+
+    // DIÁLOGO DE ALERTA: ¡K.O. / DERROTA! 💀
+    if (showKoDialog) {
+        AlertDialog(
+            onDismissRequest = { showKoDialog = false },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = if (isDark) Color(0xFF321A1A) else Color(0xFFFFEBEE),
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.HeartBroken,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(52.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "¡K.O. / DERROTA! 💀",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Has alcanzado o caído por debajo del límite de ${counter.koValue} puntos en \"${counter.title}\".",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onReset()
+                        showKoDialog = false
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Reiniciar a ${counter.initialValue}")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showKoDialog = false },
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Continuar")
+                }
+            }
         )
     }
 
@@ -690,3 +1009,94 @@ private fun FullscreenCustomAmountDialog(
         }
     )
 }
+
+/**
+ * Diálogo para introducir una anotación que se guarda inmediatamente en el historial.
+ */
+@Composable
+private fun AddNoteDialog(
+    counter: Counter,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var noteText by remember { mutableStateOf("") }
+    val isDark = isSystemInDarkTheme()
+
+    fun submit() {
+        val trimmed = noteText.trim()
+        if (trimmed.isNotBlank()) {
+            onConfirm(trimmed)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(26.dp),
+        containerColor = if (isDark) Color(0xFF26242A) else Color(0xFFF5EEF8),
+        icon = {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.EditNote,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+        },
+        title = {
+            Text(
+                text = "Añadir anotación",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "La anotación se registrará al instante en el historial asociada al valor actual (${counter.currentValue}).",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                OutlinedTextField(
+                    value = noteText,
+                    onValueChange = { noteText = it },
+                    label = { Text("Texto de la anotación") },
+                    placeholder = { Text("Ej: Ronda ganada, Fin de turno...") },
+                    minLines = 2,
+                    maxLines = 4,
+                    shape = RoundedCornerShape(16.dp),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { submit() }),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { submit() },
+                enabled = noteText.trim().isNotBlank(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("Guardar nota")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+

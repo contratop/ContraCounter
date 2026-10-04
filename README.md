@@ -1,46 +1,67 @@
-# ContraCounter 🔢⚡
+# ContraCounter 🔢⚔️🎲⚡
 
-> Aplicación de contadores para Android diseñada en **Material Design 3 (Material You)** nativo, ultra reactiva, ergonómica y optimizada especialmente para dispositivos **Google Pixel** y Android moderno.
+> Aplicación de contadores, utilidades de mesa y partidas cara a cara para Android, diseñada con **Jetpack Compose + Material Design 3 (Material You)** nativo. Pensada desde cero para ser ultra reactiva, ergonómica y visualmente impecable en dispositivos **Google Pixel** y Android moderno.
 
 ---
 
 ## 🚀 ¿Por qué ContraCounter?
 
-La mayoría de aplicaciones de contadores presentan interfaces anticuadas y carecen de retroalimentación inmediata, haciendo difícil verificar con certeza cuánto se ha sumado o restado durante partidas rápidas de cartas, juegos de mesa o actividades deportivas.
+La mayoría de aplicaciones de contadores presentan interfaces anticuadas, carecen de retroalimentación inmediata y no están pensadas para situaciones reales de juego de mesa o TCG (Magic: The Gathering, Yu-Gi-Oh!, Pokémon, Lorcana, Star Wars Unlimited, wargames o deportes).
 
-**ContraCounter** reinventa la experiencia desde los cimientos en **Jetpack Compose + Material Design 3**:
-- 🎨 **Estilo Nativo de Google:** Barra superior minimalista con el título *ContraCounter* alineado a la izquierda sin elementos superfluos, siguiendo la línea de diseño de las aplicaciones de Google Pixel.
-- 🌓 **Adaptación Automática al Sistema:** Integración completa con el tema claro u oscuro del dispositivo sin necesidad de configuraciones manuales.
-- 🎭 **Selector de Temas Internos (Modal M3):** Pulsando el icono de la paleta en la barra superior se despliega un selector de paletas visuales:
-  - **Material 3 (Pixel):** Dynamic Colors de Monet adaptados al fondo de pantalla de tu dispositivo.
-  - **Modo Poke 💕:** Estilo *fancy chic* con tonos rosita pastel, blush y rose gold.
-  - **Cyberpunk ⚡:** Inspirado en Night City con acentos neón cian y amarillo eléctrico.
-  - **Matcha Esmeralda 🌿:** Tonos verdes botánicos y salvia relajantes.
-- 👻 **Shadow Delta Tracker (5s / 3s):** Al interactuar de forma rápida y repetida sobre `+` o `-`, un distintivo flotante con brillo sutil acumula el balance neto modificado en los últimos 5 segundos, permaneciendo visible durante 3 segundos tras la última pulsación para ofrecer una confirmación visual clara.
-- 🎯 **Ajuste Directo por Pulsación Prolongada:** Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra deseada o utilizar los chips rápidos (`+10`, `+5`, `-5`, `-10`, restaurar al valor inicial).
-- 🛡️ **Reset y Borrado Protegidos con Confirmación:** Diálogos Material 3 para evitar reinicios o eliminaciones accidentales.
-- ➕ **Nuevo Contador con Opción de Paso 1 en 1:** Selector para fijar el paso siempre de 1 en 1 (activado por defecto) o definir un paso personalizado, cantidad inicial, plantillas predefinidas (Vida MTG 20/40, Rondas, etc.) y selector de paletas de color.
-- 🚀 **Mini Modal de Ajuste Rápido (+/- 1, 2, 5, 10 y Custom):** Mantén pulsado el botón de sumar (`+`) o restar (`-`) de cualquier contador para abrir el panel de control rápido:
-  - **Columna izquierda:** Botones de acceso rápido para sumar `+1`, `+2`, `+5`, `+10` y `+ Custom`.
-  - **Columna central:** Contador ampliado con odómetro animado elástico, shadow delta acumulado en tiempo real y botón de confirmación.
-  - **Columna derecha:** Botones de acceso rápido para restar `-1`, `-2`, `-5`, `-10` y `- Custom`.
-  - **Diálogo Personalizado:** Permite introducir cualquier valor a medida o elegir valores frecuentes (+5, +15, +20, +25, +50, +100).
-- 📺 **Modo Pantalla Completa Inmersivo:** Toca una vez sobre cualquier contador para abrir su pantalla completa dedicada:
-  - **Número Colosal:** Cifra en gran formato (hasta 104sp) con animación vertical fluida.
-  - **Botones Hero Gigantes (`+ 1` y `- 1`):** Diseñados ergonómicamente en la zona inferior (105dp de altura) para un accionamiento cómodo y sin distracciones.
-  - **Filas de Ajuste Rápido:** Acceso inmediato a incrementos y decrementos habituales (`+/- 2, 5, 10, Custom`).
-  - **Mantener Pantalla Encendida (Keep Screen On):** Conmutador en la barra superior para evitar que la pantalla entre en suspensión durante sesiones de juego o eventos.
-  - **Acciones Directas:** Edición directa de cifra, reseteo a valor inicial y navegación fluida con el botón atrás nativo de Android.
-  - ✨ **Transición Nativa del Sistema (Activity & Predictive Back):** Apertura y retorno gestionados directamente por el sistema operativo Android, garantizando máxima fluidez y compatibilidad total con los gestos predictivos de Android 14/15 en dispositivos Pixel.
-- 💾 **Persistencia Instantánea:** Todos los contadores, estados, pasos y temas se guardan localmente para continuar siempre donde se dejó.
-- 📳 **Haptic Feedback:** Respuesta háptica táctil en interacciones clave y pulsaciones prolongadas.
-- 👾 **Comprobador de Actualizaciones de GitHub:** Mantén pulsado el título *ContraCounter* en la barra superior para abrir el diálogo informativo con el logo oficial de **ContratopDev**, versión instalada y comprobación en tiempo real de nuevas releases publicadas en GitHub con enlace directo para su descarga.
+**ContraCounter v2.0.0** evoluciona la experiencia a un nuevo nivel:
+
+### ⚔️ 1. Modo Duelo Cara a Cara (2 Jugadores en Mesa)
+- **Orientación Dividida 180°:** El Jugador 1 se orienta a 180° hacia el rival enfrente de la mesa mientras el Jugador 2 se mantiene a 0°. El padding está milimétricamente ajustado para que la cámara frontal y el notch no obstaculicen ningún botón.
+- **Puntuación Colosal & Botones Rápidos:** Cifras gigantes con botones táctiles `-5`, `-1`, `+1`, `+5` y Shadow Delta flotante sincronizado.
+- **Sub-contadores de Veneno / Comandante:** Contadores secundarios con límite letal en 10 contadores.
+- **Presets de Vida Instantáneos:** Cambia entre 20 HP (MTG Estándar), 30 HP (Commander 1v1 / SW Unlimited), 40 HP (Commander clásico), 8000 LP (Yu-Gi-Oh!), 6 Premios (Pokémon) o introduce vidas personalizadas.
+- **Detección de K.O & Revancha:** Alerta visual y háptica cuando una vida llega a 0 o el veneno a 10 con reinicio al vuelo.
+
+### 🎲 2. Utilidades de Mesa Auxiliares (Tabletop Tools)
+- **Dados Polihédricos con Geometría Real:**
+  - Siluetas polihédricas proyectadas según el tipo: **▲ D4 (Tetraedro)**, **■ D6 (Cubo)**, **⚂⚂ 2×D6 (Doble Cubo con suma)**, **◆ D8 (Octaedro)**, **⬠ D10 (Trapezoedro)**, **⬟ D12 (Dodecaedro)**, **⬡ D20 (Icosaedro)** y **⚪ D100 (Orbe porcentual)**.
+  - Líneas de facetas interiores 3D grabadas en cada dado.
+- **Animación Material 3 Expressive Motion:**
+  - Elevación dinámica de mesa (`4dp` a `16dp`) con sombra proyectada envolvente.
+  - Volteo y traqueteo 3D en los ejes X, Y y Z (`rotationX`, `rotationY`, `rotationZ` + `shake`).
+  - Curva de deceleración orgánica tipo física real (13 frames) con vibración táctil rítmica.
+  - Choque e impacto elástico al aterrizar con `Spring` physics y destello luminoso.
+  - Badges de tiradas épicas: **¡CRÍTICO! ⚡** (20 en D20), **¡PIFIA! 💀** (1 en D20), **¡100 PERFECTO! 👑** y **¡MÁXIMO! 🔥**.
+- **Lanzador de Moneda en 3D:** Volteo metálico de 1440° con aterrizaje limpio en Cara 👑 o Cruz ⚔️ y contador de estadísticas de sesión.
+- **Sorteo de Primer Turno:** Ruleta rápida y aleatoria para decidir quién empieza la partida.
+
+### 📜 3. Historial Cronológico y Anotaciones
+- **Actividad de Historial Dedicada (`HistoryActivity`):** Registro cronológico agrupado por días con desglose exacto de hora, minuto y segundo de cada operación (`+X` / `-X`).
+- **Anotaciones In-App:** Añade notas y apuntes de partida directamente desde el modo pantalla completa.
+- **Exportación de Datos:** Comparte y exporta todo tu historial en formato texto o JSON estructurado.
+
+### 🏆 4. Metas Límite y Alertas de Victoria / K.O
+- Fija objetivos de puntos (Target) y umbrales mínimos de derrota (K.O) en cualquier contador con alertas automáticas y vibraciones diferenciadas.
+
+### 📳 5. Ajustes de Vibración Háptica
+- Menú de ajustes Material 3 para activar o desactivar la respuesta háptica táctil en toda la aplicación.
+
+### 📱 6. Widget de Escritorio (AppWidget)
+- Controla y visualiza tus contadores directamente desde la pantalla de inicio de tu Android con acciones rápidas de suma, resta y ciclado.
+
+### 🎨 7. Selector de Temas Visuales (Modal M3)
+- **Material 3 (Pixel):** Dynamic Colors de Monet vinculados al fondo de pantalla de tu dispositivo.
+- **Modo Poke 💕:** Estilo *fancy chic* con tonos rosita pastel, blush y rose gold.
+- **Cyberpunk ⚡:** Night City vibes con tonos neón cian y acentos amarillo eléctrico.
+- **Matcha Esmeralda 🌿:** Tonos botánicos y salvia ultra relajantes.
+
+### 📺 8. Modo Pantalla Completa Inmersivo Hero
+- Toca cualquier contador para abrir su pantalla completa dedicada con cifras gigantes (hasta 104sp), botones Hero ergonómicos, selector de Keep Screen On y transición nativa compatible con Predictive Back de Android 14/15.
 
 ---
 
 ## 📸 Capturas de Pantalla
 
-| Vista Principal (Modo Poke 💕) | Pantalla Completa Hero (+1 / -1) | Shadow Delta Tracker (+3) | Ajuste Rápido Modal | Selector de Temas M3 |
+| Modo Duelo Cara a Cara ⚔️ | Dados Polihédricos D20 🎲 | Dados Rulando en 3D 🌀 | Lanzador de Moneda 3D 🪙 | Doble Cubo 2xD6 ⚂⚂ |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="screenshots/contracounter_duel_mode.png" width="150" alt="Modo Duelo 180°" /> | <img src="screenshots/contracounter_dice_d20.png" width="150" alt="Dado D20 Icosaédrico" /> | <img src="screenshots/contracounter_dice_rolling.png" width="150" alt="Física de Dados 3D" /> | <img src="screenshots/contracounter_coin_flipper.png" width="150" alt="Lanzador de Moneda" /> | <img src="screenshots/contracounter_dice_2xd6.png" width="150" alt="Doble Dado 2xD6" /> |
+
+| Vista Principal (Modo Poke 💕) | Pantalla Completa Hero | Shadow Delta Tracker (+3) | Ajuste Rápido Modal | Selector de Temas M3 |
 | :---: | :---: | :---: | :---: | :---: |
 | <img src="screenshots/contracounter_01_main_poke.png" width="150" alt="Vista Principal Modo Poke" /> | <img src="screenshots/contracounter_fullscreen.png" width="150" alt="Pantalla Completa Hero" /> | <img src="screenshots/contracounter_02_shadow_delta.png" width="150" alt="Shadow Delta Tracker" /> | <img src="screenshots/contracounter_quick_adjust_modal.png" width="150" alt="Ajuste Rápido Modal" /> | <img src="screenshots/contracounter_03_temas_visuales.png" width="150" alt="Selector de Temas M3" /> |
 
@@ -49,10 +70,12 @@ La mayoría de aplicaciones de contadores presentan interfaces anticuadas y care
 ## 🛠️ Tecnologías y Arquitectura
 
 - **Lenguaje:** Kotlin 1.9+
-- **UI Framework:** Jetpack Compose (BOM 2023.10.01 / M3)
-- **Design System:** Material Design 3 con `dynamicLightColorScheme` y `dynamicDarkColorScheme`
+- **UI Framework:** Jetpack Compose (BOM 2023.10.01 / Material Design 3)
+- **Motion System:** Compose Expressive Animations (`Animatable`, `spring`, `graphicsLayer`, 3D camera distance)
+- **Geometry Engine:** Proyecciones polyédricas personalizadas con `GenericShape`, `Path` y renderizado de facetas en `Canvas`
 - **Gestión de Estado:** Android ViewModel + Kotlin Coroutines + `StateFlow`
 - **Persistencia:** SharedPreferences + Gson
+- **Widgets:** Android AppWidgetProvider nativo con layouts remotos
 - **Target SDK:** Android 34 (soporta desde Android 8.0 Oreo - API 26 hasta Android 15/16)
 
 ---
@@ -66,13 +89,20 @@ ContraCounter/
 │   │   ├── AndroidManifest.xml
 │   │   ├── java/dev/contratop/contracounter/
 │   │   │   ├── MainActivity.kt
+│   │   │   ├── FullscreenCounterActivity.kt
+│   │   │   ├── DuelActivity.kt
+│   │   │   ├── HistoryActivity.kt
 │   │   │   ├── data/
 │   │   │   │   ├── Counter.kt
 │   │   │   │   └── CounterRepository.kt
+│   │   │   ├── widget/
+│   │   │   │   └── ContraCounterWidget.kt
 │   │   │   └── ui/
 │   │   │       ├── ContraCounterApp.kt
 │   │   │       ├── CounterViewModel.kt
 │   │   │       ├── FullscreenCounterScreen.kt
+│   │   │       ├── DuelScreen.kt
+│   │   │       ├── HistoryScreen.kt
 │   │   │       ├── theme/
 │   │   │       │   ├── Color.kt
 │   │   │       │   ├── Theme.kt
@@ -80,6 +110,9 @@ ContraCounter/
 │   │   │       └── components/
 │   │   │           ├── CounterCard.kt
 │   │   │           ├── ShadowDeltaBadge.kt
+│   │   │           ├── TabletopToolsDialog.kt
+│   │   │           ├── SetLimitsDialog.kt
+│   │   │           ├── SettingsDialog.kt
 │   │   │           ├── AddCounterDialog.kt
 │   │   │           ├── SetDirectValueDialog.kt
 │   │   │           ├── ResetConfirmDialog.kt
@@ -88,9 +121,14 @@ ContraCounter/
 │   │   │           ├── AboutDialog.kt
 │   │   │           └── QuickAdjustModal.kt
 │   │   └── res/
+│   │       ├── layout/
+│   │       │   └── widget_layout.xml
 │   │       ├── drawable/
 │   │       │   ├── app_icon.xml
 │   │       │   └── contratop_logo.png
+│   │       ├── xml/
+│   │       │   ├── contra_counter_widget_info.xml
+│   │       │   └── file_paths.xml
 │   │       └── values/
 ├── build.gradle.kts
 ├── settings.gradle.kts
@@ -101,16 +139,14 @@ ContraCounter/
 
 ## 📦 Compilación y Generación del APK
 
-El proyecto utiliza el wrapper de Gradle con JDK 17 configurado en `gradle.properties`.
-
-### 1. Compilar APK Debug (Listo para instalar directamente)
+### 1. Compilar APK Debug (Para pruebas locales)
 ```bash
 ./gradlew assembleDebug
 ```
 El APK generado se encuentra en:
 `app/build/outputs/apk/debug/app-debug.apk`
 
-### 2. Instalar en tu Pixel o dispositivo conectado por USB/ADB
+### 2. Instalar por ADB en tu dispositivo
 ```bash
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
@@ -119,10 +155,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```bash
 ./gradlew assembleRelease
 ```
-El APK se genera en:
+El APK firmado para distribución se genera en:
 `app/build/outputs/apk/release/app-release.apk`
 
 ---
 
 ## 👥 Desarrollado por
-Desarrollado por **ContratopDev**.
+Desarrollado con ❤️ por **ContratopDev**.

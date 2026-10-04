@@ -71,7 +71,7 @@ fun CounterCard(
     val cardBgColor = if (isDark) {
         Color(0xFF211F26)
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        MaterialTheme.colorScheme.surface
     }
 
     Card(
@@ -100,7 +100,7 @@ fun CounterCard(
                 ActionButton(
                     text = "+ ${counter.step}",
                     icon = Icons.Rounded.Add,
-                    tint = Color(0xFF4CAF50),
+                    tint = if (isDark) Color(0xFF81C784) else Color(0xFF2E7D32),
                     containerColor = if (isDark) Color(0xFF1B3B22) else Color(0xFFE8F5E9),
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -116,7 +116,7 @@ fun CounterCard(
                 ActionButton(
                     text = "- ${counter.step}",
                     icon = Icons.Rounded.Remove,
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = if (isDark) MaterialTheme.colorScheme.error else Color(0xFFC62828),
                     containerColor = if (isDark) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f) else Color(0xFFFFEBEE),
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -174,6 +174,22 @@ fun CounterCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        if (counter.targetValue != null) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "🏆${counter.targetValue}",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = if (isDark) Color(0xFFFFD54F) else Color(0xFFF57F17)
+                            )
+                        }
+                        if (counter.koValue != null) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "💀${counter.koValue}",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = if (isDark) Color(0xFFEF9A9A) else Color(0xFFD32F2F)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -305,10 +321,17 @@ private fun MiniActionButton(
     tint: Color,
     onClick: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
+    val containerColor = if (isDark) {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+    }
+
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        color = containerColor,
         modifier = Modifier
             .width(82.dp)
             .height(54.dp)
@@ -328,7 +351,7 @@ private fun MiniActionButton(
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold
                 ),
                 color = tint
             )

@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dev.contratop.contracounter.BuildConfig
 import dev.contratop.contracounter.data.AppColorTheme
 import dev.contratop.contracounter.data.Counter
+import dev.contratop.contracounter.data.CounterHistoryEntry
 import dev.contratop.contracounter.data.CounterRepository
-import dev.contratop.contracounter.data.DeltaEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -34,25 +34,47 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
     val counters: StateFlow<List<Counter>> = repository.countersFlow
     val colorTheme: StateFlow<AppColorTheme> = repository.colorThemeFlow
+    val historyFlow: StateFlow<List<CounterHistoryEntry>> = repository.historyFlow
+    val hapticsEnabled: StateFlow<Boolean> = repository.hapticsEnabledFlow
 
     // Estado del comprobador de actualizaciones de GitHub
     private val _updateStatus = MutableStateFlow<UpdateStatus>(UpdateStatus.Idle)
     val updateStatus: StateFlow<UpdateStatus> = _updateStatus.asStateFlow()
 
-    // Historial temporal de cambios en los últimos 5 segundos por contador
-    private val deltaHistoryMap = mutableMapOf<String, MutableList<DeltaEntry>>()
+    // Acumulado neto de la racha actual de modificaciones por contador
+    private val activeStreakDeltaMap = mutableMapOf<String, Long>()
 
-    // Delta visible actual para cada contador
+    // Delta visible en vivo para cada contador
     val recentDeltas = mutableStateMapOf<String, Long>()
 
-    // Si la insignia shadow está visible en este momento para cada contador
+    // Si la insignia shadow delta está visible en este momento
     val isDeltaVisible = mutableStateMapOf<String, Boolean>()
 
-    // Trabajos activos de temporizador para ocultar el shadow tras 3 segundos de inactividad
+    // Trabajos activos del temporizador de inactividad de 3 segundos
     private val timerJobs = mutableMapOf<String, Job>()
 
     fun setColorTheme(theme: AppColorTheme) {
         repository.saveColorTheme(theme)
+    }
+
+    fun setHapticsEnabled(enabled: Boolean) {
+        repository.saveHapticsEnabled(enabled)
+    }
+
+    fun addHistoryNote(counterId: String, note: String) {
+        val trimmed = note.trim()
+        if (trimmed.isEmpty()) return
+        // Si hay una racha en curso, la consolidamos antes de registrar la nota
+        commitStreakToHistory(counterId)
+        timerJobs[counterId]?.cancel()
+
+        val currentCounter = repository.countersFlow.value.firstOrNull { it.id == counterId }
+        val currentValue = currentCounter?.currentValue ?: 0L
+        repository.addHistoryNote(counterId, trimmed, currentValue)
+    }
+
+    fun clearHistory(counterId: String) {
+        repository.clearHistoryForCounter(counterId)
     }
 
     fun increment(counterId: String) {
@@ -69,6 +91,11 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         applyDelta(counterId, delta)
     }
 
+    /**
+     * Aplica un cambio numérico. La racha se mantiene acumulando sin importar cuánto tiempo
+     * esté el usuario pulsando botones; solo al pasar 3 segundos completos de inactividad
+     * se consolida y se guarda en el historial persistente.
+     */
     private fun applyDelta(counterId: String, delta: Long) {
         val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
@@ -79,72 +106,116 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         currentList[index] = updated
         repository.saveCounters(currentList)
 
-        // Registrar en ventana de los últimos 5 segundos
-        val now = System.currentTimeMillis()
-        val history = deltaHistoryMap.getOrPut(counterId) { mutableListOf() }
-        history.add(DeltaEntry(delta = delta, timestamp = now))
-
-        // Eliminar entradas más viejas de 5000 ms (5 segundos)
-        val cutoff = now - 5000L
-        history.removeAll { it.timestamp < cutoff }
-
-        // Calcular suma neta en la ventana de 5s
-        val netDelta = history.sumOf { it.delta }
-        recentDeltas[counterId] = netDelta
+        // Acumular delta en la racha activa (mantiene la suma sin corte de 5 segundos mientras se pulse)
+        val currentStreak = (activeStreakDeltaMap[counterId] ?: 0L) + delta
+        activeStreakDeltaMap[counterId] = currentStreak
+        recentDeltas[counterId] = currentStreak
         isDeltaVisible[counterId] = true
 
-        // Reiniciar el temporizador de visibilidad: debe verse durante 3 segundos tras la última pulsación
+        // Reiniciar el temporizador de inactividad: 3 segundos completos desde la ÚLTIMA pulsación
         timerJobs[counterId]?.cancel()
         timerJobs[counterId] = viewModelScope.launch {
-            delay(3000L) // 3 segundos visible tras la última pulsación
-            isDeltaVisible[counterId] = false
-            // Limpiamos historial tras desaparecer
-            history.clear()
-            recentDeltas[counterId] = 0L
+            delay(3000L) // 3 segundos sin tocar nada
+            commitStreakToHistory(counterId)
         }
     }
 
+    /**
+     * Guarda la racha acumulada en el historial persistente y limpia el shadow badge.
+     */
+    fun commitStreakToHistory(counterId: String) {
+        val finalStreak = activeStreakDeltaMap[counterId] ?: 0L
+        if (finalStreak != 0L) {
+            val currentCounter = repository.countersFlow.value.firstOrNull { it.id == counterId }
+            val resultingValue = currentCounter?.currentValue ?: 0L
+            repository.addHistoryEntry(
+                CounterHistoryEntry(
+                    counterId = counterId,
+                    delta = finalStreak,
+                    resultingValue = resultingValue,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
+        activeStreakDeltaMap[counterId] = 0L
+        recentDeltas[counterId] = 0L
+        isDeltaVisible[counterId] = false
+    }
+
     fun setDirectValue(counterId: String, newValue: Long) {
+        commitStreakToHistory(counterId)
+        timerJobs[counterId]?.cancel()
+
         val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index != -1) {
+            val previousValue = currentList[index].currentValue
+            val diff = newValue - previousValue
             currentList[index] = currentList[index].copy(currentValue = newValue)
             repository.saveCounters(currentList)
 
-            // Limpiar shadow delta para evitar confusión con el cambio directo
-            timerJobs[counterId]?.cancel()
-            isDeltaVisible[counterId] = false
-            deltaHistoryMap[counterId]?.clear()
-            recentDeltas[counterId] = 0L
+            if (diff != 0L) {
+                repository.addHistoryEntry(
+                    CounterHistoryEntry(
+                        counterId = counterId,
+                        delta = diff,
+                        resultingValue = newValue,
+                        timestamp = System.currentTimeMillis()
+                    )
+                )
+            }
         }
     }
 
     fun resetCounter(counterId: String) {
+        commitStreakToHistory(counterId)
+        timerJobs[counterId]?.cancel()
+
         val currentList = repository.countersFlow.value.toMutableList()
         val index = currentList.indexOfFirst { it.id == counterId }
         if (index != -1) {
             val c = currentList[index]
+            val previousValue = c.currentValue
+            val diff = c.initialValue - previousValue
             currentList[index] = c.copy(currentValue = c.initialValue)
             repository.saveCounters(currentList)
 
-            // Limpiar shadow delta
-            timerJobs[counterId]?.cancel()
-            isDeltaVisible[counterId] = false
-            deltaHistoryMap[counterId]?.clear()
-            recentDeltas[counterId] = 0L
+            if (diff != 0L) {
+                repository.addHistoryEntry(
+                    CounterHistoryEntry(
+                        counterId = counterId,
+                        delta = diff,
+                        resultingValue = c.initialValue,
+                        timestamp = System.currentTimeMillis()
+                    )
+                )
+            }
         }
     }
 
-    fun addCounter(title: String, initialValue: Long, step: Long, colorIndex: Int) {
+    fun addCounter(
+        title: String,
+        initialValue: Long,
+        step: Long,
+        colorIndex: Int,
+        targetValue: Long? = null,
+        koValue: Long? = null
+    ) {
         val newCounter = Counter(
             title = title,
             currentValue = initialValue,
             initialValue = initialValue,
             step = step,
-            colorIndex = colorIndex
+            colorIndex = colorIndex,
+            targetValue = targetValue,
+            koValue = koValue
         )
         val updated = repository.countersFlow.value + newCounter
         repository.saveCounters(updated)
+    }
+
+    fun updateCounterLimits(counterId: String, targetValue: Long?, koValue: Long?) {
+        repository.updateCounterLimits(counterId, targetValue, koValue)
     }
 
     fun deleteCounter(counterId: String) {
@@ -153,9 +224,10 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
         timerJobs[counterId]?.cancel()
         timerJobs.remove(counterId)
-        deltaHistoryMap.remove(counterId)
+        activeStreakDeltaMap.remove(counterId)
         recentDeltas.remove(counterId)
         isDeltaVisible.remove(counterId)
+        repository.clearHistoryForCounter(counterId)
     }
 
     fun resetAllCounters() {
@@ -164,9 +236,16 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
         timerJobs.values.forEach { it.cancel() }
         timerJobs.clear()
-        deltaHistoryMap.clear()
+        activeStreakDeltaMap.clear()
         recentDeltas.clear()
         isDeltaVisible.clear()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        activeStreakDeltaMap.keys.toList().forEach { counterId ->
+            commitStreakToHistory(counterId)
+        }
     }
 
     /**

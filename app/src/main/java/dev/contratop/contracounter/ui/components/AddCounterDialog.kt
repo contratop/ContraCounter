@@ -56,13 +56,17 @@ import dev.contratop.contracounter.ui.theme.CounterAccents
 @Composable
 fun AddCounterDialog(
     onDismiss: () -> Unit,
-    onConfirm: (title: String, initialValue: Long, step: Long, colorIndex: Int) -> Unit
+    onConfirm: (title: String, initialValue: Long, step: Long, colorIndex: Int, targetValue: Long?, koValue: Long?) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var initialValueText by remember { mutableStateOf("0") }
     var fixedStepToOne by remember { mutableStateOf(true) }
     var stepText by remember { mutableStateOf("1") }
     var selectedColorIndex by remember { mutableIntStateOf(0) }
+    var hasTarget by remember { mutableStateOf(false) }
+    var targetText by remember { mutableStateOf("20") }
+    var hasKo by remember { mutableStateOf(false) }
+    var koText by remember { mutableStateOf("0") }
     var titleError by remember { mutableStateOf(false) }
 
     fun submit() {
@@ -73,7 +77,9 @@ fun AddCounterDialog(
         }
         val initial = initialValueText.toLongOrNull() ?: 0L
         val step = if (fixedStepToOne) 1L else (stepText.toLongOrNull()?.coerceAtLeast(1L) ?: 1L)
-        onConfirm(trimmed, initial, step, selectedColorIndex)
+        val finalTarget = if (hasTarget) targetText.toLongOrNull() else null
+        val finalKo = if (hasKo) koText.toLongOrNull() else null
+        onConfirm(trimmed, initial, step, selectedColorIndex, finalTarget, finalKo)
     }
 
     AlertDialog(
@@ -251,6 +257,91 @@ fun AddCounterDialog(
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.weight(1f)
                         )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Metas y Límites (Opcional)
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "Metas y Alertas (Opcional)",
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        // Meta de Victoria
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "🏆 Meta de Victoria",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                            )
+                            Switch(
+                                checked = hasTarget,
+                                onCheckedChange = { hasTarget = it }
+                            )
+                        }
+
+                        if (hasTarget) {
+                            OutlinedTextField(
+                                value = targetText,
+                                onValueChange = { targetText = it },
+                                label = { Text("Puntos de victoria") },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Next
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        // Límite de K.O.
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "💀 Límite de K.O. / Derrota",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                            )
+                            Switch(
+                                checked = hasKo,
+                                onCheckedChange = { hasKo = it }
+                            )
+                        }
+
+                        if (hasKo) {
+                            OutlinedTextField(
+                                value = koText,
+                                onValueChange = { koText = it },
+                                label = { Text("Puntos de K.O.") },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(onDone = { submit() }),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
 

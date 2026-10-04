@@ -74,40 +74,54 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.APP_VERSION }}
-          name: "🔢 ContraCounter v${{ env.APP_VERSION }} — Material 3 & Modo Poke Edition ✨"
+          name: "🔢 ContraCounter v${{ env.APP_VERSION }} — Modo Duelo Cara a Cara ⚔️, Utilidades de Mesa Polihédricas 🎲 y Control Total ✨"
           draft: false
           prerelease: false
           body: |
-            ## 🔢 ContraCounter v${{ env.APP_VERSION }} ⚡
+            ## 🔢 ContraCounter v${{ env.APP_VERSION }} ⚔️🎲⚡
             
-            > Aplicación moderna de contadores para Android construida en **Jetpack Compose + Material Design 3 (Material You)** nativo, ultra reactiva, ergonómica y pensada especialmente para la estética de Google Pixel.
+            > ¡La mayor actualización de ContraCounter hasta la fecha! La aplicación definitiva para contadores de juegos de mesa, TCG (Magic, Yu-Gi-Oh!, Pokémon, Lorcana, Star Wars), deportes y hábitos, construida en **Jetpack Compose + Material Design 3 (Material You)** para una experiencia nativa y fluida en Android y Google Pixel.
             
             ---
             
-            ### ✨ Novedades de la versión ${{ env.APP_VERSION }}
+            ### ✨ ¿Qué hay de nuevo en la versión ${{ env.APP_VERSION }}?
             
-            #### 🎨 Diseño Nativo Google & Material You
-            - Barra superior limpia con el título *ContraCounter* alineado a la izquierda sin iconos innecesarios, idéntico a las aplicaciones nativas de Pixel.
-            - Adaptación automática del tema según la configuración del sistema (Claro / Oscuro) sin conmutadores manuales forzados.
+            #### ⚔️ Modo Duelo Cara a Cara (2 Jugadores en Mesa)
+            - **Orientación Dividida 180°:** El Jugador 1 se orienta a 180° hacia el rival enfrente de la mesa mientras el Jugador 2 se mantiene a 0°, optimizado para que la cámara frontal y el notch del dispositivo no interfieran con los controles.
+            - **Puntuación Gigante y Botones Ergonómicos:** Marcador colosal con botones de ajuste rápido `-5`, `-1`, `+1`, `+5` y Shadow Delta flotante sincronizado.
+            - **Sub-contadores de Veneno / Comandante:** Activa contadores secundarios con tope letal en 10 contadores.
+            - **Presets de Vida Instantáneos:** Cambia entre 20 HP (MTG Estándar), 30 HP (Commander 1v1 / SW Unlimited), 40 HP (Commander clásico), 8000 LP (Yu-Gi-Oh!), 6 Premios (Pokémon) o introduce vidas personalizadas.
+            - **Detección de K.O & Revancha:** Alerta visual y háptica cuando una vida llega a 0 o el veneno a 10 con reinicio al vuelo.
             
-            #### 🎭 Selector de Temas Visuales (Modal M3)
-            - **Material 3 (Pixel):** Dynamic Colors de Monet vinculados al fondo de pantalla de tu dispositivo.
-            - **Modo Poke 💕:** Estilo *fancy chic* con tonos rosita pastel, blush y rose gold.
-            - **Cyberpunk ⚡:** Night City vibes con tonos neón cian y acentos amarillo eléctrico.
-            - **Matcha Esmeralda 🌿:** Tonos botánicos y salvia ultra relajantes.
+            #### 🎲 Utilidades de Mesa Auxiliares (Dados, Moneda y Turno)
+            - **Dados Polihédricos con Geometría Real:**
+              - Siluetas geométricas auténticas: **▲ D4 (Tetraedro)**, **■ D6 (Cubo)**, **⚂⚂ 2×D6 (Doble Cubo con suma)**, **◆ D8 (Octaedro)**, **⬠ D10 (Trapezoedro)**, **⬟ D12 (Dodecaedro)**, **⬡ D20 (Icosaedro)** y **⚪ D100 (Orbe porcentual)**.
+              - Líneas de facetas interiores 3D proyectadas en cada dado.
+            - **Animación Material 3 Expressive Motion:**
+              - Elevación dinámica de mesa (`4dp` a `16dp`) con sombra proyectada.
+              - Volteo y tambaleo 3D en los ejes X, Y y Z con sacudida física.
+              - Curva de deceleración orgánica tipo física real (13 frames) con vibración táctil rítmica.
+              - Choque e impacto elástico al aterrizar con `Spring` physics y destello luminoso.
+              - Badges épicos para **¡CRÍTICO! ⚡** (20 en D20), **¡PIFIA! 💀** (1 en D20), **¡100 PERFECTO! 👑** y **¡MÁXIMO! 🔥**.
+            - **Lanzador de Moneda en 3D:** Volteo metálico de 1440° con aterrizaje en Cara 👑 o Cruz ⚔️ y estadísticas de tiradas de sesión.
+            - **Sorteo de Primer Turno:** Ruleta rápida y aleatoria para decidir quién empieza la partida.
             
-            #### 👻 Shadow Delta Tracker (5s / 3s)
-            - Acumulador inteligente de variaciones rápidas: al pulsar `+` o `-` repetidamente, muestra una insignia flotante con glow y sombra suave del balance neto acumulado en los últimos 5 segundos.
-            - Permanece visible durante 3 segundos tras la última interacción y se desvanece de forma suave.
+            #### 📜 Historial Completo y Anotaciones
+            - **Actividad de Historial Independiente:** Registro cronológico agrupado por días con desglose exacto de hora, minuto y segundo de cada operación (`+X` / `-X`).
+            - **Anotaciones In-App:** Añade notas y apuntes de partida directamente desde el modo pantalla completa.
+            - **Exportación de Datos:** Comparte y exporta todo tu historial en formato texto o JSON estructurado.
             
-            #### 🎯 Ajuste Directo de Cantidad por Pulsación Prolongada
-            - Mantén pulsado el centro de cualquier contador para abrir el diálogo modal M3 y escribir directamente la cifra deseada o usar los chips rápidos (`-10`, `-5`, `+5`, `+10`, inicial).
+            #### 🏆 Metas Límite y Alertas de Victoria / K.O
+            - Fija objetivos de puntos (Target) y umbrales mínimos de derrota (K.O) en cualquier contador con alertas automáticas.
             
-            #### 🛡️ Confirmaciones Protegidas para Reset y Borrado
-            - Confirmación modal Material 3 antes de reiniciar o eliminar contadores para evitar acciones involuntarias.
+            #### 📳 Ajustes de Vibración Háptica
+            - Conmutador dedicado en el menú de ajustes para activar o desactivar la respuesta háptica táctil en toda la aplicación.
             
-            #### 💾 Persistencia de Datos
-            - Todos los contadores, cantidades, pasos y temas se guardan localmente para que continúes siempre donde lo dejaste.
+            #### 📱 Widget de Escritorio
+            - Controla y visualiza tus contadores directamente desde la pantalla de inicio de tu Android.
+            
+            #### 🎭 Temas Visuales M3
+            - Material 3 (Monet Pixel), Modo Poke 💕, Cyberpunk ⚡ y Matcha Esmeralda 🌿.
             
             ---
             
@@ -119,7 +133,7 @@ jobs:
             
             ---
             
-            *Desarrollado con ❤️ por **ContratopDev***
+            *Desarrollado con ❤️ por **ContratopDev*****
           files: ContraCounter-v${{ env.APP_VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

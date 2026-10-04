@@ -17,15 +17,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import android.content.Intent
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PlusOne
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.SportsKabaddi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -69,14 +72,20 @@ import dev.contratop.contracounter.ui.components.DeleteConfirmDialog
 import dev.contratop.contracounter.ui.components.QuickAdjustModal
 import dev.contratop.contracounter.ui.components.ResetConfirmDialog
 import dev.contratop.contracounter.ui.components.SetDirectValueDialog
+import dev.contratop.contracounter.ui.components.SettingsDialog
+import dev.contratop.contracounter.DuelActivity
+import dev.contratop.contracounter.ui.components.TabletopToolsDialog
 import dev.contratop.contracounter.ui.components.ThemeSelectorDialog
 import dev.contratop.contracounter.ui.theme.ContraCounterTheme
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Settings
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ContraCounterApp(viewModel: CounterViewModel) {
     val counters by viewModel.counters.collectAsState()
     val colorTheme by viewModel.colorTheme.collectAsState()
+    val hapticsEnabled by viewModel.hapticsEnabled.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
     val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
@@ -84,10 +93,13 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
 
     ContraCounterTheme(
         colorTheme = colorTheme,
-        darkTheme = isDark // Se adapta automáticamente al sistema
+        darkTheme = isDark, // Se adapta automáticamente al sistema
+        hapticsEnabled = hapticsEnabled
     ) {
         var showAddDialog by remember { mutableStateOf(false) }
         var showThemeDialog by remember { mutableStateOf(false) }
+        var showSettingsDialog by remember { mutableStateOf(false) }
+        var showTabletopToolsDialog by remember { mutableStateOf(false) }
         var showOptionsMenu by remember { mutableStateOf(false) }
         var showAboutDialog by remember { mutableStateOf(false) }
         var counterToReset by remember { mutableStateOf<Counter?>(null) }
@@ -125,6 +137,30 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                         }
                     },
                     actions = {
+                        // Botón Modo Duelo (2 Jugadores cara a cara)
+                        IconButton(onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            context.startActivity(Intent(context, DuelActivity::class.java))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.SportsKabaddi,
+                                contentDescription = "Modo Duelo (2 Jugadores)",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        // Botón Utilidades de Mesa (Dados y Moneda)
+                        IconButton(onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            showTabletopToolsDialog = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Casino,
+                                contentDescription = "Utilidades de mesa",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
                         // Botón de temas internos (Material 3, Modo Poke, etc.)
                         IconButton(onClick = { showThemeDialog = true }) {
                             Icon(
@@ -134,7 +170,7 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                             )
                         }
 
-                        // Menú de opciones (Reiniciar todos los contadores)
+                        // Menú de opciones (Ajustes, Reiniciar todos, Acerca de)
                         Box {
                             IconButton(onClick = { showOptionsMenu = true }) {
                                 Icon(
@@ -149,6 +185,48 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                                 onDismissRequest = { showOptionsMenu = false }
                             ) {
                                 DropdownMenuItem(
+                                    text = { Text("Modo Duelo (2P)") },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        context.startActivity(Intent(context, DuelActivity::class.java))
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.SportsKabaddi,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Utilidades de mesa") },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showTabletopToolsDialog = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Casino,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Ajustes") },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showSettingsDialog = true
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Settings,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
                                     text = { Text("Reiniciar todos los contadores") },
                                     onClick = {
                                         showOptionsMenu = false
@@ -159,6 +237,21 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                                             Icons.Rounded.RestartAlt,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Acerca de") },
+                                    onClick = {
+                                        showOptionsMenu = false
+                                        showAboutDialog = true
+                                        viewModel.checkForUpdates()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Info,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 )
@@ -255,8 +348,8 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
         if (showAddDialog) {
             AddCounterDialog(
                 onDismiss = { showAddDialog = false },
-                onConfirm = { title, initialValue, step, colorIndex ->
-                    viewModel.addCounter(title, initialValue, step, colorIndex)
+                onConfirm = { title, initialValue, step, colorIndex, targetValue, koValue ->
+                    viewModel.addCounter(title, initialValue, step, colorIndex, targetValue, koValue)
                     showAddDialog = false
                 }
             )
@@ -351,6 +444,25 @@ fun ContraCounterApp(viewModel: CounterViewModel) {
                         Text("Cancelar")
                     }
                 }
+            )
+        }
+
+        // DIÁLOGO: Ajustes de la aplicación
+        if (showSettingsDialog) {
+            SettingsDialog(
+                hapticsEnabled = hapticsEnabled,
+                onHapticsToggled = { enabled ->
+                    viewModel.setHapticsEnabled(enabled)
+                },
+                onDismiss = { showSettingsDialog = false }
+            )
+        }
+
+        // DIÁLOGO: Utilidades de mesa (Dados y Moneda)
+        if (showTabletopToolsDialog) {
+            TabletopToolsDialog(
+                hapticsEnabled = hapticsEnabled,
+                onDismiss = { showTabletopToolsDialog = false }
             )
         }
     }

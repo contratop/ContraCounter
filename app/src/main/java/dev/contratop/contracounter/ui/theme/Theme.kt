@@ -10,9 +10,14 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import dev.contratop.contracounter.data.AppColorTheme
@@ -197,9 +202,23 @@ private val EmeraldLightColorScheme = lightColorScheme(
 fun ContraCounterTheme(
     colorTheme: AppColorTheme = AppColorTheme.MATERIAL_3,
     darkTheme: Boolean = isSystemInDarkTheme(), // Sigue el sistema automáticamente
+    hapticsEnabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+
+    val currentHaptic = LocalHapticFeedback.current
+    val effectiveHaptic = remember(hapticsEnabled, currentHaptic) {
+        if (hapticsEnabled) {
+            currentHaptic
+        } else {
+            object : HapticFeedback {
+                override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+                    // Vibración desactivada por el usuario en Ajustes
+                }
+            }
+        }
+    }
 
     val colorScheme: ColorScheme = when (colorTheme) {
         AppColorTheme.MATERIAL_3 -> {
@@ -235,9 +254,11 @@ fun ContraCounterTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalHapticFeedback provides effectiveHaptic) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
